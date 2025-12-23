@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Identity/Identity.csproj" />
+  <Project Path="MvcDemo/MvcDemo.csproj" />
 </Solution>
