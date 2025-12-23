@@ -1,10 +1,12 @@
-using System.Security.Claims;
 using Duende.IdentityModel;
+using Duende.IdentityServer.EntityFramework.DbContexts;
+using Duende.IdentityServer.EntityFramework.Mappers;
 using Identity.Data;
 using Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Security.Claims;
 
 namespace Identity;
 
@@ -14,9 +16,64 @@ public class SeedData
     {
         using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
         {
+            // Migrate and seed ApplicationDbContext
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             context.Database.Migrate();
 
+            // Migrate and seed ConfigurationDbContext
+            var configContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+            configContext.Database.Migrate();
+
+            // Migrate PersistedGrantDbContext
+            var persistedGrantContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+            persistedGrantContext.Database.Migrate();
+
+            // Seed Clients
+            if (!configContext.Clients.Any())
+            {
+                Log.Debug("Clients being populated");
+                foreach (var client in Config.Clients)
+                {
+                    configContext.Clients.Add(client.ToEntity());
+                }
+                configContext.SaveChanges();
+            }
+            else
+            {
+                Log.Debug("Clients already populated");
+            }
+
+            // Seed Identity Resources
+            if (!configContext.IdentityResources.Any())
+            {
+                Log.Debug("IdentityResources being populated");
+                foreach (var resource in Config.IdentityResources)
+                {
+                    configContext.IdentityResources.Add(resource.ToEntity());
+                }
+                configContext.SaveChanges();
+            }
+            else
+            {
+                Log.Debug("IdentityResources already populated");
+            }
+
+            // Seed API Scopes
+            if (!configContext.ApiScopes.Any())
+            {
+                Log.Debug("ApiScopes being populated");
+                foreach (var apiScope in Config.ApiScopes)
+                {
+                    configContext.ApiScopes.Add(apiScope.ToEntity());
+                }
+                configContext.SaveChanges();
+            }
+            else
+            {
+                Log.Debug("ApiScopes already populated");
+            }
+
+            // Seed Users
             var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var alice = userMgr.FindByNameAsync("alice").Result;
             if (alice == null)

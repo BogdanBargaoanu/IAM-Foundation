@@ -1,4 +1,3 @@
-using System.Globalization;
 using Duende.IdentityServer;
 using Identity.Data;
 using Identity.Models;
@@ -7,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
+using System.Globalization;
 
 namespace Identity;
 
@@ -50,8 +50,10 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
+        var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(connectionString));
 
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -71,9 +73,16 @@ internal static class HostingExtensions
                     options.Diagnostics.ChunkSize = 1024 * 1024 * 10; // 10 MB
                 }
             })
-            .AddInMemoryIdentityResources(Config.IdentityResources)
-            .AddInMemoryApiScopes(Config.ApiScopes)
-            .AddInMemoryClients(Config.Clients)
+            .AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(typeof(Program).Assembly.FullName));
+            })
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(typeof(Program).Assembly.FullName));
+            })
             .AddAspNetIdentity<ApplicationUser>()
             .AddLicenseSummary();
 
@@ -98,7 +107,6 @@ internal static class HostingExtensions
 
         return builder.Build();
     }
-
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
         app.UseSerilogRequestLogging();
