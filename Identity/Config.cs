@@ -8,18 +8,18 @@ public static class Config
         new IdentityResource[]
         {
             new IdentityResources.OpenId(),
-            new IdentityResources.Profile(),
+            new IdentityResources.Profile()
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
-        new ApiScope[]
+        new[]
         {
             new ApiScope("scope1"),
-            new ApiScope("scope2"),
+            new ApiScope("scope2")
         };
 
     public static IEnumerable<Client> Clients =>
-        new Client[]
+        new[]
         {
             // m2m client credentials flow client
             new Client
@@ -48,5 +48,20 @@ public static class Config
                 AllowOfflineAccess = true,
                 AllowedScopes = { "openid", "profile", "scope2" }
             },
+
+            // mvc client using code flow + pkce
+            new Client
+            {
+                ClientId = "mvc.frontend.demo",
+                ClientName = "Demo MVC Frontend Client",
+                ClientSecrets = { new Secret("D7EBB0B8-F964-480A-B992-7FACDF747EFE".Sha256()) },
+                AllowedGrantTypes = GrantTypes.Code,
+                RequirePkce = true,
+                AllowOfflineAccess = true,
+                AllowedScopes = { "openid", "profile", "offline_access" },
+                RedirectUris = { "TODO" },
+                FrontChannelLogoutUri = "TODO",
+                PostLogoutRedirectUris = { "TODO" },
+            }
         };
 }
