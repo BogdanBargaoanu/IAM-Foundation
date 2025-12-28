@@ -55,3 +55,5 @@ nunit-*.xml
 /.vs
 /Identity/diagnostics
 /.env
+
+/certs
