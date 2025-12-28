@@ -50,7 +50,8 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
-        var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
+        // var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));

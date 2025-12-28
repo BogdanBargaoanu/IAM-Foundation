@@ -1,0 +1,75 @@
+version: "3.9"
+
+name: iam-foundation
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: iam-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    ports:
+      - "${DB_PORT:-1433}:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  identity:
+    build:
+      context: ./Identity
+      dockerfile: Dockerfile
+    container_name: identity-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
+      # Authority base URL exposed via compose port mapping
+      - Identity__PublicUrl=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
+      # Connection string for EF/Core
+      - ConnectionStrings__DefaultConnection=Server=db;Database=IdentityDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
+    ports:
+      - "${IDENTITY_HTTPS_PORT:-5001}:8081"
+    volumes:
+      - ./certs:/https:ro
+
+  mvc:
+    build:
+      context: ./MvcDemo
+      dockerfile: Dockerfile
+    container_name: mvc-frontend
+    depends_on:
+      identity:
+        condition: service_started
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
+      # OIDC settings expected by Program.cs via appsettings binding
+      - Authentication__Schemes__OpenIdConnect__Authority=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
+      - Authentication__Schemes__OpenIdConnect__ClientId=${OIDC_CLIENT_ID}
+      - Authentication__Schemes__OpenIdConnect__ClientSecret=${OIDC_CLIENT_SECRET}
+      - Authentication__Schemes__OpenIdConnect__CallbackPath=/signin-oidc
+      - Authentication__Schemes__OpenIdConnect__SaveTokens=true
+      - Authentication__Schemes__OpenIdConnect__ResponseType=code
+      - Authentication__Schemes__OpenIdConnect__GetClaimsFromUserInfoEndpoint=true
+      # If the MVC app has its own DB:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=MvcDemoDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
+    ports:
+      - "${MVC_HTTPS_PORT:-7151}:8081"
+    volumes:
+      - ./certs:/https:ro
+
+volumes:
+  sql_data:

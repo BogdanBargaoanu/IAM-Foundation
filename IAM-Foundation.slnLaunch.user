@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Development",
+    "Projects": [
+      {
+        "Path": "Identity\\Identity.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MvcDemo\\MvcDemo.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
