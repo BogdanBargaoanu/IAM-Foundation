@@ -29,13 +29,17 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=https://+:8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       # Authority base URL exposed via compose port mapping
-      - Identity__PublicUrl=${IDENTITY_PUBLIC_URL:-http://localhost:5001}
+      - Identity__PublicUrl=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
       # Connection string for EF/Core
       - ConnectionStrings__DefaultConnection=Server=db;Database=IdentityDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
     ports:
-      - "${IDENTITY_HTTP_PORT:-5001}:8080"
+      - "${IDENTITY_HTTPS_PORT:-5001}:8081"
+    volumes:
+      - ./certs:/https:ro
 
   mvc:
     build:
@@ -49,9 +53,11 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=https://+:8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       # OIDC settings expected by Program.cs via appsettings binding
-      - Authentication__Schemes__OpenIdConnect__Authority=${IDENTITY_PUBLIC_URL:-http://localhost:5001}
+      - Authentication__Schemes__OpenIdConnect__Authority=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
       - Authentication__Schemes__OpenIdConnect__ClientId=${OIDC_CLIENT_ID}
       - Authentication__Schemes__OpenIdConnect__ClientSecret=${OIDC_CLIENT_SECRET}
       - Authentication__Schemes__OpenIdConnect__CallbackPath=/signin-oidc
@@ -61,7 +67,9 @@ services:
       # If the MVC app has its own DB:
       - ConnectionStrings__DefaultConnection=Server=db;Database=MvcDemoDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
     ports:
-      - "${MVC_HTTP_PORT:-5002}:8080"
+      - "${MVC_HTTPS_PORT:-7151}:8081"
+    volumes:
+      - ./certs:/https:ro
 
 volumes:
   sql_data:
