@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MvcDemo.Models;
+using System.Diagnostics;
 
 namespace MvcDemo.Controllers;
 
@@ -12,6 +12,11 @@ public class HomeController : Controller
     }
 
     public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    public IActionResult Profile()
     {
         return View();
     }

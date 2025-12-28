@@ -59,9 +59,9 @@ public static class Config
                 RequirePkce = true,
                 AllowOfflineAccess = true,
                 AllowedScopes = { "openid", "profile", "offline_access" },
-                RedirectUris = { "TODO" },
-                FrontChannelLogoutUri = "TODO",
-                PostLogoutRedirectUris = { "TODO" },
+                RedirectUris = { "https://localhost:7151/signin-oidc" },
+                FrontChannelLogoutUri = "https://localhost:7151/signout-oidc",
+                PostLogoutRedirectUris = { "https://localhost:7151/signout-callback-oidc" },
             }
         };
 }

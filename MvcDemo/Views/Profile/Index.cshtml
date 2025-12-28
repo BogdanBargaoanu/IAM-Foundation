@@ -1,0 +1,38 @@
+@model MvcDemo.Controllers.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<h1>Profile</h1>
+@if (User?.Identity?.IsAuthenticated ?? false)
+{
+    <a class="btn btn-outline-danger" asp-controller="Profile" asp-action="Logout">Logout</a>
+    <p><strong>User Name:</strong> @Model.UserName</p>
+    <p><strong>Subject Id:</strong> @Model.SubjectId</p>
+
+    <h2>Tokens</h2>
+    <div class="mb-3">
+        <label class="font-weight-bold">Access Token</label>
+        <pre class="bg-light p-2">@Model.AccessToken</pre>
+    </div>
+    <div class="mb-3">
+        <label class="font-weight-bold">ID Token</label>
+        <pre class="bg-light p-2">@Model.IdToken</pre>
+    </div>
+    <div class="mb-3">
+        <label class="font-weight-bold">Refresh Token</label>
+        <pre class="bg-light p-2">@Model.RefreshToken</pre>
+    </div>
+
+    <h2>Claims</h2>
+    <ul>
+        @foreach (var claim in Model.Claims)
+        {
+            <li><strong>@claim.Type:</strong> @claim.Value</li>
+        }
+    </ul>
+}
+else
+{
+    <p>You are not signed in.</p>
+}

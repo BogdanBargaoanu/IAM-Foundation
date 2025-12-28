@@ -1,7 +1,26 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+})
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+    {
+        builder.Configuration.Bind("Authentication:Schemes:OpenIdConnect", options);
+
+        options.ResponseType = "code";
+        options.SaveTokens = true;
+        options.GetClaimsFromUserInfoEndpoint = true;
+    });
 
 var app = builder.Build();
 
@@ -16,6 +35,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -25,5 +45,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapControllerRoute(
+    name: "profile",
+    pattern: "profile",
+    defaults: new { controller = "Profile", action = "Index" });
 
 app.Run();
