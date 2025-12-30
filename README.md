@@ -50,9 +50,12 @@ In the same PowerShell terminal, navigate to the `certs` directory and run the g
 ```powershell
 cd certs
 .\generate-dev-certs.ps1 -PfxPassword Your_cert_password
-
 ```
-
+> You may experience the error: `Execution of scripts is disabled on this system`.
+>
+> To fix, open a new powershell as `administrator` and run the following command: `Set-ExecutionPolicy RemoteSigned`.
+>
+> Afterwards, you can revert the policy change with: `Set-ExecutionPolicy Restricted`.
 ### 3. Configure Environment Variables
 
 1. Create a `.env` file at the **root** of the project based on the `.env.example` file.
