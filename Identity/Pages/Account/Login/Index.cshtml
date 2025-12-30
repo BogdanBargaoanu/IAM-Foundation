@@ -43,9 +43,17 @@
                                     </div>
                                 </div>
                             }
-                            
-                            <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
-                            <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+
+                            <div class="d-flex">
+                                <button class="btn btn-primary mr-1" name="Input.Button" value="login">Login</button>
+                                <button class="btn btn-secondary mr-1" name="Input.Button" value="cancel">Cancel</button>
+
+                                <a class="btn btn-outline-secondary ms-auto"
+                                   asp-page="/Account/Register/Index"
+                                   asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                    Register
+                                </a>
+                            </div>
                         </form>
                     </div>
                 </div>
