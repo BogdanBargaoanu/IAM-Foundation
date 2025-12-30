@@ -15,6 +15,6 @@ COPY --from=build /app/publish .
 
 # Copy the entrypoint script from build context (Identity folder)
 COPY --from=build /src/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
