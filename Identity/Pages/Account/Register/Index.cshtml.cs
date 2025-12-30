@@ -1,3 +1,4 @@
+using Duende.IdentityModel;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Identity.Models;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace Identity.Pages.Account.Register;
 
@@ -100,6 +102,22 @@ public class IndexModel : PageModel
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+
+            return Page();
+        }
+
+        // add claims, username for ease of testing
+        createResult = _userManager.AddClaimsAsync(user, new Claim[]{
+                            new Claim(JwtClaimTypes.Name, Input.Username!),
+                            new Claim(JwtClaimTypes.GivenName, Input.Username!),
+                            new Claim(JwtClaimTypes.FamilyName, Input.Username!),
+                            new Claim(JwtClaimTypes.WebSite, $"http://{Input.Username!}.com"),
+                            new Claim(JwtClaimTypes.Email, Input.Email!),
+                        }).Result;
+
+        if (!createResult.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, createResult.Errors.First().Description);
 
             return Page();
         }

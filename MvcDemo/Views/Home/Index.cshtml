@@ -1,6 +1,8 @@
-﻿@{
+﻿@using System.Security.Claims
+@{
     ViewData["Title"] = "Home";
     var isAuth = User?.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? User.FindFirstValue("name") ?? "Unknown";
 }
 
 <div class="py-4">
@@ -34,7 +36,7 @@
                         <dd class="col-8">@(isAuth ? "Yes" : "No")</dd>
 
                         <dt class="col-4">User</dt>
-                        <dd class="col-8">@((isAuth ? (User.Identity?.Name ?? "Unknown") : "—"))</dd>
+                        <dd class="col-8">@((isAuth ? (userName ?? "Unknown") : "—"))</dd>
                     </dl>
                 </div>
             </div>
