@@ -12,7 +12,7 @@ namespace MvcDemo.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            var userName = User.Identity?.Name;
+            var userName = User.Identity?.Name ?? User.FindFirstValue("name");
             var subjectId = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var claims = User.Claims
