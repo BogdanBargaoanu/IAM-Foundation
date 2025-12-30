@@ -50,7 +50,6 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
-        // var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -116,6 +115,8 @@ internal static class HostingExtensions
         {
             app.UseDeveloperExceptionPage();
         }
+
+        app.UseHttpsRedirection();
 
         app.UseStaticFiles();
         app.UseRouting();

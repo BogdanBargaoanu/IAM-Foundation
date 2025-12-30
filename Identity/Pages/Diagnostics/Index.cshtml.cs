@@ -9,12 +9,19 @@ namespace Identity.Pages.Diagnostics;
 [Authorize]
 public class Index : PageModel
 {
+    private readonly IConfiguration _configuration;
+
+    public Index(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
     public ViewModel View { get; set; } = default!;
 
     public async Task<IActionResult> OnGet()
     {
-        //Replace with an authorization policy check
-        if (HttpContext.Connection.IsRemote())
+        var allowRemote = _configuration.GetValue<bool>("ALLOW_REMOTE_DIAGNOSTICS", false);
+
+        if (!allowRemote && HttpContext.Connection.IsRemote())
         {
             return NotFound();
         }

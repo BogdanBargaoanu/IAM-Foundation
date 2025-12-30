@@ -55,5 +55,6 @@ nunit-*.xml
 /.vs
 /Identity/diagnostics
 /.env
-
-/certs
+certs/aspnetapp.pfx
+/certs/ca
+/certs/identity

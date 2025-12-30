@@ -45,6 +45,17 @@ public static class Extensions
             localAddresses.Add(connection.LocalIpAddress.ToString());
         }
 
+        var remoteIp = connection.RemoteIpAddress?.ToString();
+
+        if (remoteIp != null)
+        {
+            // Allow Docker bridge network
+            if (remoteIp.StartsWith("172.") || remoteIp.StartsWith("192.168."))
+            {
+                return false; // Treat as local
+            }
+        }
+
         if (!localAddresses.Contains(connection.RemoteIpAddress?.ToString()))
         {
             return true;
