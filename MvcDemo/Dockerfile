@@ -10,6 +10,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 EXPOSE 8081
 ENV ASPNETCORE_URLS=https://+:8081
+
+COPY certs/ca/iam-dev-ca.crt /usr/local/share/ca-certificates/iam-dev-ca.crt
+RUN update-ca-certificates
+
 COPY --from=build /app/publish .
 
 ENTRYPOINT ["dotnet", "MvcDemo.dll"]

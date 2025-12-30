@@ -29,8 +29,9 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ALLOW_REMOTE_DIAGNOSTICS=true
       - ASPNETCORE_URLS=https://+:8081
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/identity/identity.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       # Authority base URL exposed via compose port mapping
       - Identity__PublicUrl=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
@@ -43,8 +44,8 @@ services:
 
   mvc:
     build:
-      context: ./MvcDemo
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./MvcDemo/Dockerfile
     container_name: mvc-frontend
     depends_on:
       identity:
@@ -57,19 +58,22 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       # OIDC settings expected by Program.cs via appsettings binding
-      - Authentication__Schemes__OpenIdConnect__Authority=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
+      - Authentication__Schemes__OpenIdConnect__Authority=https://localhost:5001
       - Authentication__Schemes__OpenIdConnect__ClientId=${OIDC_CLIENT_ID}
       - Authentication__Schemes__OpenIdConnect__ClientSecret=${OIDC_CLIENT_SECRET}
       - Authentication__Schemes__OpenIdConnect__CallbackPath=/signin-oidc
+      - Authentication__Schemes__OpenIdConnect__SignedOutCallbackPath=/signout-callback-oidc
+      - Authentication__Schemes__OpenIdConnect__Scopes=openid profile offline_access
       - Authentication__Schemes__OpenIdConnect__SaveTokens=true
       - Authentication__Schemes__OpenIdConnect__ResponseType=code
       - Authentication__Schemes__OpenIdConnect__GetClaimsFromUserInfoEndpoint=true
-      # If the MVC app has its own DB:
-      - ConnectionStrings__DefaultConnection=Server=db;Database=MvcDemoDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
+      - Mvc__PublicUrl=${MVC_PUBLIC_URL:-https://localhost:7151}
     ports:
       - "${MVC_HTTPS_PORT:-7151}:8081"
     volumes:
       - ./certs:/https:ro
+    extra_hosts:
+      - "localhost:host-gateway"
 
 volumes:
   sql_data:

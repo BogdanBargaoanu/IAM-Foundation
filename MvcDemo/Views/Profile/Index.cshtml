@@ -6,7 +6,6 @@
 <h1>Profile</h1>
 @if (User?.Identity?.IsAuthenticated ?? false)
 {
-    <a class="btn btn-outline-danger" asp-controller="Profile" asp-action="Logout">Logout</a>
     <p><strong>User Name:</strong> @Model.UserName</p>
     <p><strong>Subject Id:</strong> @Model.SubjectId</p>
 
