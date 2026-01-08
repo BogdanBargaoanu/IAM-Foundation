@@ -15,7 +15,8 @@ public static class Config
         new[]
         {
             new ApiScope("scope1"),
-            new ApiScope("scope2")
+            new ApiScope("scope2"),
+            new ApiScope("kiosk_api")
         };
 
     public static IEnumerable<Client> Clients =>
@@ -62,6 +63,17 @@ public static class Config
                 RedirectUris = { "https://localhost:7151/signin-oidc" },
                 FrontChannelLogoutUri = "https://localhost:7151/signout-oidc",
                 PostLogoutRedirectUris = { "https://localhost:7151/signout-callback-oidc" },
+            },
+
+            // kiosk client using custom grant type
+            new Client
+            {
+                ClientId = "kiosk.client",
+                ClientName = "Kiosk Client",
+                AllowedGrantTypes = { "kiosk_auth" },
+                ClientSecrets = { new Secret("8B003741-8ACF-483B-AC20-F904CF3AF860".Sha256()) },
+                AllowedScopes = { "kiosk_api" },
+                RequirePkce = false
             }
         };
 }

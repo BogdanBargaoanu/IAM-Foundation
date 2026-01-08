@@ -1,5 +1,6 @@
 using Duende.IdentityServer;
 using Identity.Data;
+using Identity.ExtensionGrants;
 using Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,7 @@ internal static class HostingExtensions
                     sql => sql.MigrationsAssembly(typeof(Program).Assembly.FullName));
             })
             .AddAspNetIdentity<ApplicationUser>()
+            .AddExtensionGrantValidator<KioskAuthenticationGrantValidator>()
             .AddLicenseSummary();
 
         builder.Services.AddAuthentication()

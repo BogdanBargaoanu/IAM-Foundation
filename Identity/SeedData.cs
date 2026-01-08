@@ -1,6 +1,7 @@
 using Duende.IdentityModel;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
+using Duende.IdentityServer.Models;
 using Identity.Data;
 using Identity.Models;
 using Microsoft.AspNetCore.Identity;
@@ -138,6 +139,41 @@ public class SeedData
             else
             {
                 Log.Debug("bob already exists");
+            }
+
+            var mike = userMgr.FindByNameAsync("mike").Result;
+            if (mike == null)
+            {
+                mike = new ApplicationUser
+                {
+                    UserName = "mike",
+                    Email = "mikedavid@kiosk.com",
+                    EmailConfirmed = true,
+                    EmployeeId = "123456",
+                    PinHash = "1234".Sha256()
+                };
+                var result = userMgr.CreateAsync(mike, "Pass123$").Result;
+                if (!result.Succeeded)
+                {
+                    throw new Exception(result.Errors.First().Description);
+                }
+
+                result = userMgr.AddClaimsAsync(bob, new Claim[]{
+                            new Claim(JwtClaimTypes.Name, "Mike David"),
+                            new Claim(JwtClaimTypes.GivenName, "Mike"),
+                            new Claim(JwtClaimTypes.FamilyName, "David"),
+                            new Claim(JwtClaimTypes.WebSite, "http://mike.example.com"),
+                            new Claim("location", "somewhere")
+                        }).Result;
+                if (!result.Succeeded)
+                {
+                    throw new Exception(result.Errors.First().Description);
+                }
+                Log.Debug("mike created");
+            }
+            else
+            {
+                Log.Debug("mike already exists");
             }
         }
     }
