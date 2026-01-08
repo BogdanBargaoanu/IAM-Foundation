@@ -2,6 +2,7 @@
 using Duende.IdentityServer.Validation;
 using Identity.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Identity.ExtensionGrants
 {
@@ -51,9 +52,16 @@ namespace Identity.ExtensionGrants
                 authenticationMethod: GrantType);
         }
 
-        private async Task<ApplicationUser> ValidateEmployeeCredentialsAsync(string employeeId, string pin)
+        private async Task<ApplicationUser?> ValidateEmployeeCredentialsAsync(string employeeId, string pin)
         {
-            return await _userManager.FindByNameAsync("alice");
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.EmployeeId == employeeId);
+            if (user is null || string.IsNullOrEmpty(user.PinHash))
+            {
+                return null;
+            }
+
+            var expectedPinHash = pin.Sha256();
+            return string.Equals(user.PinHash, expectedPinHash, StringComparison.Ordinal) ? user : null;
         }
     }
 }
