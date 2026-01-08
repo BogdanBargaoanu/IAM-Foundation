@@ -82,3 +82,23 @@ Once the containers are running, access the applications at the following URLs:
 
 * **IdentityServer:** [https://localhost:5001](https://localhost:5001)
 * **MVC Client:** [https://localhost:7151](https://localhost:7151)
+
+## Extension Grants
+A custom **Kiosk Login** Extension Grant is implemented via `KioskAuthenticationGrantValidator.cs` with the `grant_type=kiosk_auth`.
+> This extension grant is intended to authenticate users providing an `employee_id` and `pin`.
+
+To access the functionality you will need to make a `POST` request to the `/connect/token` endpoint of the `IdentityServer`:
+```bash
+curl -k -X POST https://localhost:5001/connect/token
+     -H "Content-Type: application/x-www-form-urlencoded"
+     -d "client_id=kiosk.client"
+     -d "client_secret=Kiosk_client_secret"
+     -d "grant_type=kiosk_auth"
+     -d "employee_id=Your_employee_id"
+     -d "pin=Your_employee_pin"
+```
+
+> Note: A Kiosk employee is already configured in the seeding step.
+> 
+> For testing purposes, you can replace `employee_id` with `123456` and `pin` with `1234`.
+---
