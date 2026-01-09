@@ -102,3 +102,7 @@ curl -k -X POST https://localhost:5001/connect/token
 > 
 > For testing purposes, you can replace `employee_id` with `123456` and `pin` with `1234`.
 ---
+### Postman
+A postman collection is included in the repository for testing the **Kiosk Login** functionality. 
+
+Download the [postman collection](https://github.com/BogdanBargaoanu/IAM-Foundation/blob/main/utils/IAM-Foundation.postman_collection.json), import it in the app and modify the `baseUrl` and `secret` to the `IdentityServer` URL and Kiosk `client_secret` respectively in the collection variables.
