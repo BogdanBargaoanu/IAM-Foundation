@@ -1,0 +1,59 @@
+{
+	"info": {
+		"_postman_id": "26179265-2461-4aac-85f4-4bbea306633c",
+		"name": "IAM-Foundation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "50986068",
+		"_collection_link": "https://bogdanalexandru-bargaoanu-6611602.postman.co/workspace/Bogdan-Alexandru-Bargaoanu's-Wo~e19a64d8-0e31-42d0-882b-28ed10560eec/collection/50986068-26179265-2461-4aac-85f4-4bbea306633c?action=share&source=collection_link&creator=50986068"
+	},
+	"item": [
+		{
+			"name": "Kiosk Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "kiosk.client",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{secret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "kiosk_auth",
+							"type": "text"
+						},
+						{
+							"key": "employee_id",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "pin",
+							"value": "1234",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/connect/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
