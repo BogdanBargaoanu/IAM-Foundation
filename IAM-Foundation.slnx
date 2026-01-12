@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Identity/Identity.csproj" />
   <Project Path="MvcDemo/MvcDemo.csproj" />
+  <Project Path="TransactionsApi/TransactionsApi.csproj" Id="6efad6a0-5c52-4519-8b6d-30d9c322f1bf" />
 </Solution>
