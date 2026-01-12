@@ -158,7 +158,7 @@ public class SeedData
                     throw new Exception(result.Errors.First().Description);
                 }
 
-                result = userMgr.AddClaimsAsync(bob, new Claim[]{
+                result = userMgr.AddClaimsAsync(mike, new Claim[]{
                             new Claim(JwtClaimTypes.Name, "Mike David"),
                             new Claim(JwtClaimTypes.GivenName, "Mike"),
                             new Claim(JwtClaimTypes.FamilyName, "David"),
