@@ -6,7 +6,7 @@ using TransactionsApi.Services;
 
 namespace TransactionsApi.Controllers.v2
 {
-    [Authorize]
+    [Authorize("ApiScope")]
     [ApiController]
     [ApiVersion("2.0")]
     [Route("api/v{version:apiVersion}/[controller]")]

@@ -18,7 +18,14 @@ builder.Services.AddAuthentication()
         options.TokenValidationParameters.ValidateAudience = false;
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiScope", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scope", "transactions_api");
+    });
+});
 
 builder.Services.AddHealthChecks();
 
