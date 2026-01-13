@@ -25,6 +25,7 @@ namespace TransactionsApi.Controllers.v2
         {
             if (string.IsNullOrWhiteSpace(accountId))
             {
+                _logger.LogInformation("Attempted to get account totals with missing AccountId");
                 return BadRequest("AccountId cannot be missing.");
             }
 
