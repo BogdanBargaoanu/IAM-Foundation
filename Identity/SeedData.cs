@@ -30,19 +30,23 @@ public class SeedData
             persistedGrantContext.Database.Migrate();
 
             // Seed Clients
-            if (!configContext.Clients.Any())
+            var clientCount = 0;
+            foreach (var client in Config.Clients)
             {
-                Log.Debug("Clients being populated");
-                foreach (var client in Config.Clients)
+                var existing = configContext.Clients.FirstOrDefault(c => c.ClientId == client.ClientId);
+                if (existing is null)
                 {
                     configContext.Clients.Add(client.ToEntity());
+                    clientCount++;
                 }
+            }
+
+            if (clientCount > 0)
+            {
+                Log.Debug("Clients being populated");
                 configContext.SaveChanges();
             }
-            else
-            {
-                Log.Debug("Clients already populated");
-            }
+            else Log.Debug("Clients already populated");
 
             // Seed Identity Resources
             if (!configContext.IdentityResources.Any())
