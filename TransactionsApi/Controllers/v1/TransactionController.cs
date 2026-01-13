@@ -25,6 +25,7 @@ namespace TransactionsApi.Controllers.v1
         {
             if (string.IsNullOrWhiteSpace(accountId))
             {
+                _logger.LogInformation("Attempted to get account total with missing AccountId.");
                 return BadRequest("AccountId cannot be missing.");
             }
 
@@ -37,6 +38,7 @@ namespace TransactionsApi.Controllers.v1
         {
             if (string.IsNullOrWhiteSpace(merchantName))
             {
+                _logger.LogInformation("Attempted to get merchant total with missing MerchantName.");
                 return BadRequest("MerchantName cannot be missing.");
             }
 
@@ -56,6 +58,7 @@ namespace TransactionsApi.Controllers.v1
         {
             if (string.IsNullOrWhiteSpace(reference))
             {
+                _logger.LogInformation("Attempted to get reference total with missing Reference.");
                 return BadRequest("Reference cannot be missing.");
             }
             var total = _transactionService.GetReferenceTotal(reference, currency);
