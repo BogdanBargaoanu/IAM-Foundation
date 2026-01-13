@@ -1,5 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
+var apiVersion = builder.Configuration["Api:Version"] ?? "v1";
+
 builder.Services.AddAuthentication()
     .AddJwtBearer(options =>
     {
@@ -9,8 +11,18 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddEndpointsApiExplorer()
+    .AddSwaggerGen()
+    .AddHealthChecks();
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.MapHealthChecks($"/api/{apiVersion}/health");
 
 app.Run();
