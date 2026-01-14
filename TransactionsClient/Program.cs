@@ -1,7 +1,13 @@
+using TransactionsClient.Services.TokenService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddSingleton<ITokenService, TokenService>();
 
 var app = builder.Build();
 
