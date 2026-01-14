@@ -1,3 +1,4 @@
+using TransactionsClient.Services.HttpClientFactory;
 using TransactionsClient.Services.TokenService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
 builder.Services.AddSingleton<ITokenService, TokenService>();
+
+builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
 
 var app = builder.Build();
 
