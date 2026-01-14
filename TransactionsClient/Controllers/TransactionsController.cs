@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TransactionsClient.Services.ApiClient;
+using TransactionsClient.Services.Utils;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
@@ -10,13 +11,16 @@ namespace TransactionsClient.Controllers
     {
         private readonly ITransactionsApiClient _apiClient;
         private readonly ILogger<TransactionsController> _logger;
+        private readonly CurlCommandBuilder _curlBuilder;
 
         public TransactionsController(
             ITransactionsApiClient apiClient,
-            ILogger<TransactionsController> logger)
+            ILogger<TransactionsController> logger,
+            CurlCommandBuilder curlBuilder)
         {
             _apiClient = apiClient;
             _logger = logger;
+            _curlBuilder = curlBuilder;
         }
         public IActionResult Index()
         {
@@ -26,6 +30,10 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetAccountTotalV1(string accountId, TransactionCurrency currency)
         {
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                $"/api/v1/Transaction/account/{accountId}",
+                new() { ["currency"] = ((int)currency).ToString() });
+
             try
             {
                 var total = await _apiClient.GetAccountTotalV1Async(accountId, currency);
@@ -45,6 +53,8 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetAccountTotalV2(string accountId)
         {
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand($"/api/v2/Transaction/account/{accountId}");
+
             try
             {
                 var totals = await _apiClient.GetAccountTotalV2Async(accountId);
@@ -65,6 +75,10 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetMerchantTotal(string merchantName, TransactionCurrency currency)
         {
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                $"/api/v1/Transaction/merchant/{merchantName}",
+                new() { ["currency"] = ((int)currency).ToString() });
+
             try
             {
                 var total = await _apiClient.GetMerchantTotalAsync(merchantName, currency);
@@ -84,6 +98,8 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetCurrencyTotal(TransactionCurrency currency)
         {
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand($"/api/v1/Transaction/currency/{(int)currency}");
+
             try
             {
                 var total = await _apiClient.GetCurrencyTotalAsync(currency);
@@ -103,6 +119,10 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetReferenceTotal(string reference, TransactionCurrency currency)
         {
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                $"/api/v1/Transaction/reference/{reference}",
+                new() { ["currency"] = ((int)currency).ToString() });
+
             try
             {
                 var total = await _apiClient.GetReferenceTotalAsync(reference, currency);
@@ -127,6 +147,16 @@ namespace TransactionsClient.Controllers
             TransactionType? type,
             TransactionStatus? status)
         {
+            var queryParams = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(accountId)) queryParams["accountId"] = accountId;
+            if (!string.IsNullOrEmpty(merchantName)) queryParams["merchantName"] = merchantName;
+            if (!string.IsNullOrEmpty(reference)) queryParams["reference"] = reference;
+            if (currency.HasValue) queryParams["currency"] = ((int)currency).ToString();
+            if (type.HasValue) queryParams["type"] = ((int)type).ToString();
+            if (status.HasValue) queryParams["status"] = ((int)status).ToString();
+
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand("/api/v1/Transaction", queryParams);
+
             try
             {
                 var transactions = await _apiClient.GetTransactionsAsync(

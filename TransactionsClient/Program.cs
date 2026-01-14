@@ -1,6 +1,7 @@
 using TransactionsClient.Services.ApiClient;
 using TransactionsClient.Services.HttpClientFactory;
 using TransactionsClient.Services.TokenService;
+using TransactionsClient.Services.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
 
 builder.Services.AddScoped<ITransactionsApiClient, TransactionsApiClient>();
+
+builder.Services.AddSingleton<CurlCommandBuilder>();
 
 var app = builder.Build();
 

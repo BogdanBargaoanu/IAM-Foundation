@@ -20,7 +20,7 @@ namespace TransactionsClient.Services.TokenService
             _configuration = configuration;
             _logger = logger;
         }
-        public async Task<string> GetAccesTokenAsync()
+        public async Task<string> GetAccessTokenAsync()
         {
             // Return cached token if still valid
             if (!string.IsNullOrEmpty(_cachedToken) && DateTime.UtcNow < _tokenExpiration)
