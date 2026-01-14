@@ -27,7 +27,7 @@ namespace TransactionsClient.Services.HttpClientFactory
 
             var accessToken = await _tokenService.GetAccesTokenAsync();
 
-            client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:6001");
+            client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _logger.LogInformation("Successfully created an authenticated HttpClient");

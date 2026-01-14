@@ -54,7 +54,7 @@ namespace TransactionsClient.Services.TokenService
             _cachedToken = tokenResponse.AccessToken;
             // Refresh the token 30 seconds before it expires
             _tokenExpiration = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn - 30);
-            _logger.LogInformation("Succesfully retrieved an access token from the IdentityServer: {Token}", _cachedToken);
+            _logger.LogInformation("Successfully retrieved an access token from the IdentityServer: {Token}", _cachedToken);
 
             return _cachedToken;
         }
