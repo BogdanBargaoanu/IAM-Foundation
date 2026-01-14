@@ -1,3 +1,4 @@
+using TransactionsClient.Services.ApiClient;
 using TransactionsClient.Services.HttpClientFactory;
 using TransactionsClient.Services.TokenService;
 
@@ -11,6 +12,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
+
+builder.Services.AddScoped<ITransactionsApiClient, TransactionsApiClient>();
 
 var app = builder.Build();
 
@@ -33,6 +36,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

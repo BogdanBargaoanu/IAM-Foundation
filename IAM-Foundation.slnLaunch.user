@@ -11,5 +11,22 @@
         "Action": "Start"
       }
     ]
+  },
+  {
+    "Name": "Transactions",
+    "Projects": [
+      {
+        "Path": "Identity\\Identity.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "TransactionsApi\\TransactionsApi.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "TransactionsClient\\TransactionsClient.csproj",
+        "Action": "Start"
+      }
+    ]
   }
 ]

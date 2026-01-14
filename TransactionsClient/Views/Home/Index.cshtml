@@ -1,8 +1,40 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <h1 class="display-3 fw-bold mb-4">Transactions Client</h1>
+    <p class="lead text-muted mb-5">
+        A demo application showcasing secure API access using OAuth 2.0 Client Credentials flow
+    </p>
+
+    <div class="row justify-content-center g-4 mt-4">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                    </div>
+                    <h3 class="card-title mb-3">Transactions API</h3>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Transactions" asp-action="Index" class="btn btn-primary btn-lg">
+                            Explore API Demo
+                        </a>
+                        <a asp-controller="Transactions" asp-action="Transactions" class="btn btn-outline-secondary">
+                            View All Transactions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>

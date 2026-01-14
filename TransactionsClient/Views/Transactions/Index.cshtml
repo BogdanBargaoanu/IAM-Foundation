@@ -1,0 +1,154 @@
+﻿@{
+    ViewData["Title"] = "Transactions API Demo";
+}
+
+<div class="text-center mb-4">
+    <h1 class="display-4">Transactions API Demo</h1>
+</div>
+
+@if (ViewBag.Result != null)
+{
+    <div class="alert alert-@(ViewBag.ResultType == "success" ? "success" : "danger") alert-dismissible fade show" role="alert">
+        @if (ViewBag.IsHtml == true)
+        {
+            @Html.Raw(ViewBag.Result)
+        }
+        else
+        {
+            @ViewBag.Result
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row row-cols-1 row-cols-md-2 g-4 align-items-stretch">
+    <!-- Get Account Total V1 -->
+    <div class="col d-flex">
+        <div class="card w-100 h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Get Account Total (V1)</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <form asp-action="GetAccountTotalV1" method="post" class="d-flex flex-column flex-grow-1">
+                    <div class="mb-3">
+                        <label for="accountId" class="form-label">Account ID</label>
+                        <input type="text" class="form-control" id="accountId" name="accountId"
+                               placeholder="e.g., acc-001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="currency" class="form-label">Currency</label>
+                        <select class="form-select" id="currency" name="currency" required>
+                            <option value="">Select a currency...</option>
+                            @foreach (var currency in ViewBag.Currencies)
+                            {
+                                <option value="@currency.Value">@currency.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-auto">Get Total</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Get Account Total V2 -->
+    <div class="col d-flex">
+        <div class="card w-100 h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Get Account Total (V2 - All Currencies)</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <form asp-action="GetAccountTotalV2" method="post" class="d-flex flex-column flex-grow-1">
+                    <div class="mb-3">
+                        <label for="accountIdV2" class="form-label">Account ID</label>
+                        <input type="text" class="form-control" id="accountIdV2" name="accountId"
+                               placeholder="e.g., acc-001" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-auto">Get All Totals</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Get Merchant Total -->
+    <div class="col d-flex">
+        <div class="card w-100 h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Get Merchant Total</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <form asp-action="GetMerchantTotal" method="post" class="d-flex flex-column flex-grow-1">
+                    <div class="mb-3">
+                        <label for="merchantName" class="form-label">Merchant Name</label>
+                        <input type="text" class="form-control" id="merchantName" name="merchantName"
+                               placeholder="e.g., CoffeeUnlimited LTD" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="merchantCurrency" class="form-label">Currency</label>
+                        <select class="form-select" id="merchantCurrency" name="currency" required>
+                            <option value="">Select a currency...</option>
+                            @foreach (var currency in ViewBag.Currencies)
+                            {
+                                <option value="@currency.Value">@currency.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-auto">Get Total</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Get Currency Total -->
+    <div class="col d-flex">
+        <div class="card w-100 h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Get Currency Total</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <form asp-action="GetCurrencyTotal" method="post" class="d-flex flex-column flex-grow-1">
+                    <div class="mb-3">
+                        <label for="currencyOnly" class="form-label">Currency</label>
+                        <select class="form-select" id="currencyOnly" name="currency" required>
+                            <option value="">Select a currency...</option>
+                            @foreach (var currency in ViewBag.Currencies)
+                            {
+                                <option value="@currency.Value">@currency.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-auto">Get Total</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Get Reference Total -->
+    <div class="col d-flex">
+        <div class="card w-100 h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Get Reference Total</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <form asp-action="GetReferenceTotal" method="post" class="d-flex flex-column flex-grow-1">
+                    <div class="mb-3">
+                        <label for="reference" class="form-label">Reference</label>
+                        <input type="text" class="form-control" id="reference" name="reference"
+                               placeholder="e.g., POS-10001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="referenceCurrency" class="form-label">Currency</label>
+                        <select class="form-select" id="referenceCurrency" name="currency" required>
+                            <option value="">Select a currency...</option>
+                            @foreach (var currency in ViewBag.Currencies)
+                            {
+                                <option value="@currency.Value">@currency.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-auto">Get Total</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
