@@ -5,6 +5,7 @@ namespace TransactionsClient.Services.ApiClient
 {
     public interface ITransactionsApiClient
     {
+        Task<bool> CheckHealthy();
         Task<decimal> GetAccountTotalV1Async(string accountId, TransactionCurrency currency);
         Task<decimal> GetMerchantTotalAsync(string merchantName, TransactionCurrency currency);
         Task<decimal> GetCurrencyTotalAsync(TransactionCurrency currency);

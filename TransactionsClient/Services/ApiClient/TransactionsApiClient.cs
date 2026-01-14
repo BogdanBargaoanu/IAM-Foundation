@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Headers;
+using System.Text.Json;
 using TransactionsClient.Services.HttpClientFactory;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
@@ -9,15 +10,29 @@ namespace TransactionsClient.Services.ApiClient
     {
         private readonly IAuthenticatedHttpClientFactory _clientFactory;
         private readonly ILogger<TransactionsApiClient> _logger;
-
+        private readonly IConfiguration _configuration;
         public TransactionsApiClient(
             IAuthenticatedHttpClientFactory clientFactory,
-            ILogger<TransactionsApiClient> logger)
+            ILogger<TransactionsApiClient> logger,
+            IConfiguration configuration)
         {
             _clientFactory = clientFactory;
             _logger = logger;
+            _configuration = configuration;
         }
 
+        public async Task<bool> CheckHealthy()
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.Timeout = TimeSpan.FromSeconds(1);
+            _logger.LogInformation("Checking API health");
+
+            var response = await client.GetAsync("/api/health");
+            _logger.LogInformation("API Service is {status}", response.IsSuccessStatusCode ? "healthy" : "unhealthy");
+            return response.IsSuccessStatusCode;
+        }
         public async Task<decimal> GetAccountTotalV1Async(string accountId, TransactionCurrency currency)
         {
             var client = await _clientFactory.CreateClientAsync();

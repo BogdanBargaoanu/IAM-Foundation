@@ -1,13 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using TransactionsClient.Models;
+using TransactionsClient.Services.ApiClient;
 
 namespace TransactionsClient.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ITransactionsApiClient _apiClient;
+        public HomeController(ITransactionsApiClient apiClient)
         {
+            _apiClient = apiClient;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            bool isHealthy = false;
+            try
+            {
+                isHealthy = await _apiClient.CheckHealthy();
+            }
+            catch (Exception)
+            {
+                // If the health check fails, isHealthy remains false
+                isHealthy = false;
+            }
+            ViewBag.ServiceHealth = isHealthy;
             return View();
         }
 
