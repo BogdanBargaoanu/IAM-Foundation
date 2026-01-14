@@ -1,5 +1,5 @@
-﻿using TransactionsApi.Constants;
-using TransactionsApi.Models;
+﻿using TransactionsLibrary.Constants;
+using TransactionsLibrary.Models;
 
 namespace TransactionsApi.Mock
 {

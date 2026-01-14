@@ -1,4 +1,4 @@
-﻿namespace TransactionsApi.Constants
+﻿namespace TransactionsLibrary.Constants
 {
     public enum TransactionStatus
     {

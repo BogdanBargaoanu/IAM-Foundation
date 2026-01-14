@@ -1,8 +1,8 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TransactionsApi.Constants;
 using TransactionsApi.Services;
+using TransactionsLibrary.Constants;
 
 namespace TransactionsApi.Controllers.v2
 {

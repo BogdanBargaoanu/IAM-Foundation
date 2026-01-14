@@ -16,4 +16,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TransactionsLibrary\TransactionsLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

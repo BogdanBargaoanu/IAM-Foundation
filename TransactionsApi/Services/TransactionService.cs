@@ -1,6 +1,6 @@
-﻿using TransactionsApi.Constants;
-using TransactionsApi.Mock;
-using TransactionsApi.Models;
+﻿using TransactionsApi.Mock;
+using TransactionsLibrary.Constants;
+using TransactionsLibrary.Models;
 
 namespace TransactionsApi.Services
 {

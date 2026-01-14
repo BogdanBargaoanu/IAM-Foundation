@@ -1,8 +1,9 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TransactionsApi.Constants;
 using TransactionsApi.Services;
+using TransactionsLibrary.Constants;
+using TransactionsLibrary.Models;
 
 namespace TransactionsApi.Controllers.v1
 {
@@ -66,7 +67,7 @@ namespace TransactionsApi.Controllers.v1
         }
 
         [HttpGet("transactions")]
-        public ActionResult<IReadOnlyList<Models.Transaction>> GetTransactions(
+        public ActionResult<IReadOnlyList<Transaction>> GetTransactions(
             [FromQuery] string? accountId = null,
             [FromQuery] string? merchantName = null,
             [FromQuery] string? reference = null,

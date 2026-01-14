@@ -1,6 +1,6 @@
-﻿using TransactionsApi.Constants;
+﻿using TransactionsLibrary.Constants;
 
-namespace TransactionsApi.Models
+namespace TransactionsLibrary.Models
 {
     public sealed record Transaction(
         Guid Id,
