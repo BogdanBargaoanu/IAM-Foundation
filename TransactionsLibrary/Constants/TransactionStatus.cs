@@ -4,6 +4,6 @@
     {
         Initiated = 0,
         Successful = 1,
-        Failed = 2,
+        Failed = 2
     }
 }

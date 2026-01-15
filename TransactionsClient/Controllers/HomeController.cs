@@ -22,7 +22,6 @@ namespace TransactionsClient.Controllers
             }
             catch (Exception)
             {
-                // If the health check fails, isHealthy remains false
                 isHealthy = false;
             }
             ViewBag.ServiceHealth = isHealthy;

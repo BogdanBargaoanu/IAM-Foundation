@@ -23,7 +23,7 @@ namespace TransactionsClient.Services.ApiClient
 
         public async Task<bool> CheckHealthy()
         {
-            var client = new HttpClient();
+            using var client = new HttpClient();
             client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.Timeout = TimeSpan.FromSeconds(1);
