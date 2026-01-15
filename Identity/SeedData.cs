@@ -30,19 +30,23 @@ public class SeedData
             persistedGrantContext.Database.Migrate();
 
             // Seed Clients
-            if (!configContext.Clients.Any())
+            var clientCount = 0;
+            foreach (var client in Config.Clients)
             {
-                Log.Debug("Clients being populated");
-                foreach (var client in Config.Clients)
+                var existing = configContext.Clients.FirstOrDefault(c => c.ClientId == client.ClientId);
+                if (existing is null)
                 {
                     configContext.Clients.Add(client.ToEntity());
+                    clientCount++;
                 }
+            }
+
+            if (clientCount > 0)
+            {
+                Log.Debug("Clients being populated");
                 configContext.SaveChanges();
             }
-            else
-            {
-                Log.Debug("Clients already populated");
-            }
+            else Log.Debug("Clients already populated");
 
             // Seed Identity Resources
             if (!configContext.IdentityResources.Any())
@@ -60,13 +64,20 @@ public class SeedData
             }
 
             // Seed API Scopes
-            if (!configContext.ApiScopes.Any())
+            var apiScopeCount = 0;
+            foreach (var apiScope in Config.ApiScopes)
             {
-                Log.Debug("ApiScopes being populated");
-                foreach (var apiScope in Config.ApiScopes)
+                var existing = configContext.ApiScopes.FirstOrDefault(s => s.Name == apiScope.Name);
+                if (existing is null)
                 {
                     configContext.ApiScopes.Add(apiScope.ToEntity());
+                    apiScopeCount++;
                 }
+            }
+
+            if (apiScopeCount > 0)
+            {
+                Log.Debug("ApiScopes being populated");
                 configContext.SaveChanges();
             }
             else

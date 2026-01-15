@@ -1,4 +1,7 @@
 <Solution>
   <Project Path="Identity/Identity.csproj" />
   <Project Path="MvcDemo/MvcDemo.csproj" />
+  <Project Path="TransactionsApi/TransactionsApi.csproj" Id="6efad6a0-5c52-4519-8b6d-30d9c322f1bf" />
+  <Project Path="TransactionsClient/TransactionsClient.csproj" Id="f6194e60-5806-4a6b-868e-012d9d95281b" />
+  <Project Path="TransactionsLibrary/TransactionsLibrary.csproj" Id="a208f43e-0beb-42d0-a057-c1ec4548baf9" />
 </Solution>
