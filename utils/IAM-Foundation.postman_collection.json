@@ -22,7 +22,7 @@
 						},
 						{
 							"key": "client_secret",
-							"value": "{{secret}}",
+							"value": "{{kiosk_secret}}",
 							"type": "text"
 						},
 						{
@@ -54,6 +54,82 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Transactions Authentication",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "transactions.client",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{transactions_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/connect/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": ""
+		},
+		{
+			"key": "kiosk_secret",
+			"value": ""
+		},
+		{
+			"key": "transactions_secret",
+			"value": ""
 		}
 	]
 }
