@@ -38,50 +38,34 @@ builder.Services.AddAuthentication(options =>
                 var logger = context.HttpContext.RequestServices
                     .GetRequiredService<ILogger<Program>>();
 
-                // Log the code challenge and verifier
-                logger.LogInformation("========== PKCE Parameters ==========");
+                // Log the code challenge
                 logger.LogInformation("Code Challenge: {CodeChallenge}",
-                    context.ProtocolMessage.Parameters.TryGetValue("code_challenge", out var challenge)
-                        ? challenge : "N/A");
+                    context.ProtocolMessage.Parameters.TryGetValue("code_challenge", out var challenge) ? challenge : "N/A");
                 logger.LogInformation("Code Challenge Method: {Method}",
-                    context.ProtocolMessage.Parameters.TryGetValue("code_challenge_method", out var method)
-                        ? method : "N/A");
+                    context.ProtocolMessage.Parameters.TryGetValue("code_challenge_method", out var method) ? method : "N/A");
+
                 logger.LogInformation("Client ID: {ClientId}", context.ProtocolMessage.ClientId);
                 logger.LogInformation("Redirect URI: {RedirectUri}", context.ProtocolMessage.RedirectUri);
                 logger.LogInformation("Scopes: {Scopes}", context.ProtocolMessage.Scope);
-
-                // Log if using Pushed Auth Req
-                if (context.ProtocolMessage.Parameters.ContainsKey("request_uri"))
-                {
-                    logger.LogInformation("Using Pushed Authorization Request");
-                    logger.LogInformation("Request URI: {RequestUri}",
-                        context.ProtocolMessage.Parameters["request_uri"]);
-                }
 
                 return Task.CompletedTask;
             },
 
             OnAuthorizationCodeReceived = context =>
             {
-                var logger = context.HttpContext.RequestServices
-                    .GetRequiredService<ILogger<Program>>();
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
 
-                logger.LogInformation("========== Authorization Code Received ==========");
-                logger.LogInformation("Authorization Code: {Code}",
-                    context.ProtocolMessage.Code ?? "N/A");
+                logger.LogInformation("Authorization Code Received: {Code}", context.ProtocolMessage.Code ?? "N/A");
 
                 return Task.CompletedTask;
             },
 
             OnTokenResponseReceived = context =>
             {
-                var logger = context.HttpContext.RequestServices
-                    .GetRequiredService<ILogger<Program>>();
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
 
-                logger.LogInformation("========== Token Response Received ==========");
-                logger.LogInformation("Access Token: {Token}",
-                    context.TokenEndpointResponse.AccessToken ?? "N/A");
-                logger.LogInformation("Token Type: {Type}",
+                logger.LogInformation("Token Response Received: {Token}, type: {TokenType}",
+                    context.TokenEndpointResponse.AccessToken ?? "N/A",
                     context.TokenEndpointResponse.TokenType);
 
                 return Task.CompletedTask;
