@@ -5,6 +5,7 @@ A minimal implementation for **Identity and Access Management** featuring **Duen
 It features the following projects:
 - `Identity` (Duende Identity Server)
 - `MvcDemo` (MVC Web App) - primary role: display user information based on issued `access_token`.
+> The `MvcDemo` is authorized to the `TransactionsApi` and can consume it.
 - `TransactionsApi` (ASP.NET Web API) - primary role: serves mockup transactions info to authenticated clients.
 - `TransactionsClient` (MVC Web App) - primary role: consumes `TransactionsApi` to display transaction data and request metadata.
 - `TransactionsLibrary` (Class Library) - primary role: centralized models and constants.
@@ -12,6 +13,7 @@ It features the following projects:
 ## Authorization Code Flow
 The **Authorization Code Flow** will be showcased using the `Identity` and `MvcDemo`.
 
+For **Api Access**, `TransactionsApi` will be used and accessible via the `Transactions` page in `MvcDemo`.
 ### How to Run Locally
 
 #### 1. Clone the Repository
@@ -34,7 +36,7 @@ dotnet run /seed
 
 #### 4. Launch the Applications
 
-Run both projects using the **Development** launch profile.
+Run the projects using the **Development** launch profile.
 
 ---
 
@@ -91,6 +93,7 @@ Once the containers are running, access the applications at the following URLs:
 
 * `Identity`: [https://localhost:5001](https://localhost:5001)
 * `MvcDemo`: [https://localhost:7151](https://localhost:7151)
+* `TransactionsApi`: [https://localhost:7001/swagger](https://localhost:7001/swagger)
 ---
 ## Extension Grants
 A custom **Kiosk Login** Extension Grant is implemented via `KioskAuthenticationGrantValidator.cs` with the `grant_type=kiosk_auth`.
