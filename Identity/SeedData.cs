@@ -31,13 +31,48 @@ public class SeedData
 
             // Seed Clients
             var clientCount = 0;
+            var clientUpdateCount = 0;
             foreach (var client in Config.Clients)
             {
-                var existing = configContext.Clients.FirstOrDefault(c => c.ClientId == client.ClientId);
+                var existing = configContext.Clients
+                    .Include(c => c.AllowedScopes)
+                    .FirstOrDefault(c => c.ClientId == client.ClientId);
+
                 if (existing is null)
                 {
                     configContext.Clients.Add(client.ToEntity());
                     clientCount++;
+                }
+                else
+                {
+                    // Update existing client scopes
+                    var configuredScopes = client.AllowedScopes.ToHashSet();
+                    var existingScopes = existing.AllowedScopes.Select(s => s.Scope).ToHashSet();
+
+                    if (!configuredScopes.SetEquals(existingScopes))
+                    {
+                        // Remove scopes that are no longer configured
+                        var scopesToRemove = existing.AllowedScopes
+                            .Where(s => !configuredScopes.Contains(s.Scope))
+                            .ToList();
+
+                        foreach (var clientScope in scopesToRemove)
+                        {
+                            existing.AllowedScopes.Remove(clientScope);
+                        }
+
+                        // Add new scopes
+                        foreach (var clientScope in configuredScopes.Except(existingScopes))
+                        {
+                            existing.AllowedScopes.Add(new Duende.IdentityServer.EntityFramework.Entities.ClientScope
+                            {
+                                Scope = clientScope
+                            });
+                        }
+
+                        clientUpdateCount++;
+                        Log.Debug("Client {ClientId} scopes updated", client.ClientId);
+                    }
                 }
             }
 
@@ -46,7 +81,15 @@ public class SeedData
                 Log.Debug("Clients being populated");
                 configContext.SaveChanges();
             }
-            else Log.Debug("Clients already populated");
+            else if (clientUpdateCount > 0)
+            {
+                Log.Debug("{ClientUpdateCount} clients updated", clientUpdateCount);
+                configContext.SaveChanges();
+            }
+            else
+            {
+                Log.Debug("Clients already populated");
+            }
 
             // Seed Identity Resources
             if (!configContext.IdentityResources.Any())
