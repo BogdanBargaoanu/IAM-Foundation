@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MvcDemo.Services.ApiClient;
 using TransactionsLibrary.Models;
@@ -11,6 +10,7 @@ namespace MvcDemo.Controllers
     {
         private readonly ITransactionsApiClient _apiClient;
         private readonly ILogger<TransactionsController> _logger;
+
         public TransactionsController(
             ITransactionsApiClient apiClient,
             ILogger<TransactionsController> logger)
@@ -18,10 +18,9 @@ namespace MvcDemo.Controllers
             _apiClient = apiClient;
             _logger = logger;
         }
+
         public async Task<IActionResult> Index()
         {
-            var accessToken = await HttpContext.GetTokenAsync("access_token");
-            _apiClient.InjectAccessToken(accessToken ?? string.Empty);
             bool isHealthy = false;
             try
             {

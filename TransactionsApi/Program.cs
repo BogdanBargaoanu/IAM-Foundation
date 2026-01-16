@@ -14,7 +14,7 @@ var apiVersion = new ApiVersion(major, minor);
 builder.Services.AddAuthentication()
     .AddJwtBearer(options =>
     {
-        options.Authority = "https://localhost:5001";
+        options.Authority = builder.Configuration["Authentication:Authority"] ?? "https://localhost:5001";
         options.TokenValidationParameters.ValidateAudience = false;
     });
 

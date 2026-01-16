@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Authentication;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using TransactionsClient.Services.HttpClientFactory;
 using TransactionsLibrary.Models;
@@ -10,24 +11,20 @@ namespace MvcDemo.Services.ApiClient
         private readonly IAuthenticatedHttpClientFactory _clientFactory;
         private readonly ILogger<TransactionsApiClient> _logger;
         private readonly IConfiguration _configuration;
-        private string _accessToken = string.Empty;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public TransactionsApiClient(
             IAuthenticatedHttpClientFactory clientFactory,
             IConfiguration configuration,
-            ILogger<TransactionsApiClient> logger
-            )
+            ILogger<TransactionsApiClient> logger,
+            IHttpContextAccessor httpContextAccessor)
         {
             _clientFactory = clientFactory;
             _logger = logger;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
-        public void InjectAccessToken(string accessToken)
-        {
-            if (string.IsNullOrWhiteSpace(_accessToken))
-            {
-                _accessToken = accessToken;
-            }
-        }
+
         public async Task<bool> CheckHealthy()
         {
             using var client = new HttpClient();
@@ -43,7 +40,15 @@ namespace MvcDemo.Services.ApiClient
 
         public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync()
         {
-            var client = await _clientFactory.CreateClientAsync(_accessToken);
+            var accessToken = await _httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? string.Empty;
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                _logger.LogWarning("No access token found in HttpContext");
+                throw new InvalidOperationException("User is not authenticated or token is missing");
+            }
+
+            var client = await _clientFactory.CreateClientAsync(accessToken);
             _logger.LogInformation("Fetching available transactions");
 
             var response = await client.GetAsync($"/api/v1/Transaction/transactions");
