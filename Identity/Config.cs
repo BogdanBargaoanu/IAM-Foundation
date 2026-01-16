@@ -30,7 +30,7 @@ public static class Config
                 AllowedGrantTypes = GrantTypes.Code,
                 RequirePkce = true,
                 AllowOfflineAccess = true,
-                AllowedScopes = { "openid", "profile", "offline_access" },
+                AllowedScopes = { "openid", "profile", "offline_access", "transactions_api" },
                 RedirectUris = { "https://localhost:7151/signin-oidc" },
                 FrontChannelLogoutUri = "https://localhost:7151/signout-oidc",
                 PostLogoutRedirectUris = { "https://localhost:7151/signout-callback-oidc" },
