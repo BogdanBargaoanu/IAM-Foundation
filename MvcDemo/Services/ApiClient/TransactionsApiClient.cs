@@ -12,30 +12,52 @@ namespace MvcDemo.Services.ApiClient
         private readonly ILogger<TransactionsApiClient> _logger;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHostEnvironment _environment;
 
         public TransactionsApiClient(
             IAuthenticatedHttpClientFactory clientFactory,
             IConfiguration configuration,
             ILogger<TransactionsApiClient> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IHostEnvironment environment)
         {
             _clientFactory = clientFactory;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _environment = environment;
         }
 
         public async Task<bool> CheckHealthy()
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.Timeout = TimeSpan.FromSeconds(1);
-            _logger.LogInformation("Checking API health");
+            HttpClient client;
 
-            var response = await client.GetAsync("/api/health");
-            _logger.LogInformation("API Service is {status}", response.IsSuccessStatusCode ? "healthy" : "unhealthy");
-            return response.IsSuccessStatusCode;
+            if (_environment.IsDevelopment())
+            {
+                // Skip certificate validation
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback =
+                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                client = new HttpClient(handler);
+            }
+            else
+            {
+                client = new HttpClient();
+            }
+
+            using (client)
+            {
+                client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.Timeout = TimeSpan.FromSeconds(1);
+                _logger.LogInformation("Checking API health");
+
+                var response = await client.GetAsync("/api/health");
+                _logger.LogInformation("API Service is {status}", response.IsSuccessStatusCode ? "healthy" : "unhealthy");
+                return response.IsSuccessStatusCode;
+            }
         }
 
         public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync()

@@ -42,6 +42,28 @@ services:
     volumes:
       - ./certs:/https:ro
 
+  transactions-api:
+    build:
+      context: .
+      dockerfile: ./TransactionsApi/Dockerfile
+    container_name: transactions-api
+    depends_on:
+      identity:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:8081;
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
+      - Api__Version=${API_VERSION:-2.0}
+      - Authentication__Authority=https://localhost:5001
+    ports:
+      - "${TRANSACTIONS_API_HTTPS_PORT:-7001}:8081"
+    volumes:
+      - ./certs:/https:ro
+    extra_hosts:
+      - "localhost:host-gateway"
+
   mvc:
     build:
       context: .
@@ -49,6 +71,8 @@ services:
     container_name: mvc-frontend
     depends_on:
       identity:
+        condition: service_started
+      transactions-api:
         condition: service_started
       db:
         condition: service_healthy
@@ -63,11 +87,15 @@ services:
       - Authentication__Schemes__OpenIdConnect__ClientSecret=${OIDC_CLIENT_SECRET}
       - Authentication__Schemes__OpenIdConnect__CallbackPath=/signin-oidc
       - Authentication__Schemes__OpenIdConnect__SignedOutCallbackPath=/signout-callback-oidc
-      - Authentication__Schemes__OpenIdConnect__Scopes=openid profile offline_access
+      - Authentication__Schemes__OpenIdConnect__Scope__0=openid
+      - Authentication__Schemes__OpenIdConnect__Scope__1=profile
+      - Authentication__Schemes__OpenIdConnect__Scope__2=offline_access
+      - Authentication__Schemes__OpenIdConnect__Scope__3=transactions_api
       - Authentication__Schemes__OpenIdConnect__SaveTokens=true
       - Authentication__Schemes__OpenIdConnect__ResponseType=code
       - Authentication__Schemes__OpenIdConnect__GetClaimsFromUserInfoEndpoint=true
       - Mvc__PublicUrl=${MVC_PUBLIC_URL:-https://localhost:7151}
+      - TransactionsApi__BaseUrl=https://localhost:7001
     ports:
       - "${MVC_HTTPS_PORT:-7151}:8081"
     volumes:

@@ -16,6 +16,17 @@ builder.Services.AddAuthentication()
     {
         options.Authority = builder.Configuration["Authentication:Authority"] ?? "https://localhost:5001";
         options.TokenValidationParameters.ValidateAudience = false;
+
+        if (builder.Environment.IsDevelopment())
+        {
+            options.RequireHttpsMetadata = false;
+
+            options.BackchannelHttpHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+        }
     });
 
 builder.Services.AddAuthorization(options =>

@@ -7,19 +7,36 @@ namespace TransactionsClient.Services.HttpClientFactory
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthenticatedHttpClientFactory> _logger;
+        private readonly IHostEnvironment _environment;
 
         public AuthenticatedHttpClientFactory(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
-            ILogger<AuthenticatedHttpClientFactory> logger)
+            ILogger<AuthenticatedHttpClientFactory> logger,
+            IHostEnvironment environment)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _logger = logger;
+            _environment = environment;
         }
         public async Task<HttpClient> CreateClientAsync(string accessToken)
         {
-            var client = _httpClientFactory.CreateClient();
+            HttpClient client;
+            if (_environment.IsDevelopment())
+            {
+                // Skip certificate validation
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback =
+                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                client = new HttpClient(handler);
+            }
+            else
+            {
+                client = _httpClientFactory.CreateClient();
+            }
 
             client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
