@@ -9,6 +9,10 @@
       {
         "Path": "MvcDemo\\MvcDemo.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "TransactionsApi\\TransactionsApi.csproj",
+        "Action": "Start"
       }
     ]
   },

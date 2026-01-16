@@ -1,0 +1,93 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model IEnumerable<TransactionsLibrary.Models.Transaction>
+
+@{
+    ViewData["Title"] = "All Transactions";
+
+    var currencies = ViewBag.Currencies as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var types = ViewBag.Types as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var statuses = ViewBag.Statuses as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+
+    var transactions = Model ?? Enumerable.Empty<TransactionsLibrary.Models.Transaction>();
+
+    var selectedCurrency = Context.Request.Query["currency"].ToString();
+    var selectedType = Context.Request.Query["type"].ToString();
+    var selectedStatus = Context.Request.Query["status"].ToString();
+}
+
+<div class="mb-4">
+    <h1 class="display-4">All Transactions</h1>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+@if(ViewBag.ServiceHealth != null)
+{
+    var isHealthy = ViewBag.ServiceHealth as bool? ?? false;
+    <div class="alert @(isHealthy ? "alert-success" : "alert-danger")">
+        Transactions API is @(isHealthy ? "Online" : "Offline")
+    </div>
+}
+
+<!-- Transactions Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Results (@transactions.Count() transactions)</h5>
+    </div>
+    <div class="card-body">
+        @if (transactions.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Account</th>
+                            <th>Timestamp</th>
+                            <th>Amount</th>
+                            <th>Currency</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Merchant</th>
+                            <th>Description</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in transactions)
+                        {
+                            <tr>
+                                <td><small>@transaction.Id.ToString().Substring(0, 8)...</small></td>
+                                <td>@transaction.AccountId</td>
+                                <td>@transaction.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@transaction.Amount.ToString("C")</td>
+                                <td>@transaction.Currency</td>
+                                <td>
+                                    <span class="badge bg-@(transaction.Type == TransactionsLibrary.Constants.TransactionType.Credit ? "success" : "primary")">
+                                        @transaction.Type
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Successful ? "success" :
+                                                                                                                                               transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Failed ? "danger" : "warning")">
+                                        @transaction.Status
+                                    </span>
+                                </td>
+                                <td>@transaction.MerchantName</td>
+                                <td>@transaction.Description</td>
+                                <td>@transaction.Reference</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">No transactions found matching your criteria.</div>
+        }
+    </div>
+</div>

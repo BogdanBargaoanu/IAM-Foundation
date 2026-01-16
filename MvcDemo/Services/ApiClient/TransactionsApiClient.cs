@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using TransactionsClient.Services.HttpClientFactory;
-using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
 namespace MvcDemo.Services.ApiClient
@@ -11,18 +10,23 @@ namespace MvcDemo.Services.ApiClient
         private readonly IAuthenticatedHttpClientFactory _clientFactory;
         private readonly ILogger<TransactionsApiClient> _logger;
         private readonly IConfiguration _configuration;
-        private readonly string _accessToken;
+        private string _accessToken = string.Empty;
         public TransactionsApiClient(
             IAuthenticatedHttpClientFactory clientFactory,
             IConfiguration configuration,
-            ILogger<TransactionsApiClient> logger,
-            string accessToken
+            ILogger<TransactionsApiClient> logger
             )
         {
             _clientFactory = clientFactory;
             _logger = logger;
             _configuration = configuration;
-            _accessToken = accessToken;
+        }
+        public void InjectAccessToken(string accessToken)
+        {
+            if (string.IsNullOrWhiteSpace(_accessToken))
+            {
+                _accessToken = accessToken;
+            }
         }
         public async Task<bool> CheckHealthy()
         {
@@ -37,13 +41,7 @@ namespace MvcDemo.Services.ApiClient
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
-            string? accountId = null,
-            string? merchantName = null,
-            string? reference = null,
-            TransactionCurrency? currency = null,
-            TransactionType? type = null,
-            TransactionStatus? status = null)
+        public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync()
         {
             var client = await _clientFactory.CreateClientAsync(_accessToken);
             _logger.LogInformation("Fetching available transactions");

@@ -1,10 +1,18 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using MvcDemo.Services.ApiClient;
+using TransactionsClient.Services.HttpClientFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
+
+builder.Services.AddScoped<ITransactionsApiClient, TransactionsApiClient>();
 
 
 builder.Services.AddAuthentication(options =>
