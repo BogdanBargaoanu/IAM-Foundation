@@ -1,3 +1,4 @@
+using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using MvcDemo.Services.ApiClient;
@@ -16,6 +17,7 @@ builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttp
 
 builder.Services.AddScoped<ITransactionsApiClient, TransactionsApiClient>();
 
+builder.Services.AddOpenIdConnectAccessTokenManagement();
 
 builder.Services.AddAuthentication(options =>
 {
