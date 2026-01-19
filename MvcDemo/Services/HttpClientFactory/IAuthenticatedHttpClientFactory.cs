@@ -1,7 +1,9 @@
-﻿namespace TransactionsClient.Services.HttpClientFactory
+﻿using Duende.AccessTokenManagement.OpenIdConnect;
+
+namespace TransactionsClient.Services.HttpClientFactory
 {
     public interface IAuthenticatedHttpClientFactory
     {
-        Task<HttpClient> CreateClientAsync(string accessToken);
+        Task<HttpClient> CreateClientAsync(UserToken accessToken);
     }
 }

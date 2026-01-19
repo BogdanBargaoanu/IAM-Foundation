@@ -1,3 +1,4 @@
+using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -21,9 +22,10 @@ namespace MvcDemo.Controllers
                 .ToList();
 
             // Retrieve tokens saved in the auth cookie
-            var accessToken = await HttpContext.GetTokenAsync("access_token");
-            var idToken = await HttpContext.GetTokenAsync("id_token");
-            var refreshToken = await HttpContext.GetTokenAsync("refresh_token");
+            var token = await HttpContext.GetUserAccessTokenAsync();
+            var accessToken = token.Token.AccessToken;
+            var idToken = token.Token.IdentityToken;
+            var refreshToken = token.Token.RefreshToken;
 
             var vm = new ProfileViewModel(userName, subjectId, claims)
             {

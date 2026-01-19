@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Duende.AccessTokenManagement.OpenIdConnect;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using TransactionsClient.Services.HttpClientFactory;
@@ -62,15 +62,9 @@ namespace MvcDemo.Services.ApiClient
 
         public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync()
         {
-            var accessToken = await _httpContextAccessor.HttpContext?.GetTokenAsync("access_token") ?? string.Empty;
+            var token = await _httpContextAccessor.HttpContext?.GetUserAccessTokenAsync();
 
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                _logger.LogWarning("No access token found in HttpContext");
-                throw new InvalidOperationException("User is not authenticated or token is missing");
-            }
-
-            var client = await _clientFactory.CreateClientAsync(accessToken);
+            var client = await _clientFactory.CreateClientAsync(token.Token!);
             _logger.LogInformation("Fetching available transactions");
 
             var response = await client.GetAsync($"/api/v1/Transaction/transactions");

@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Headers;
+﻿using Duende.AccessTokenManagement.OpenIdConnect;
+using Duende.IdentityModel.Client;
+using System.Net.Http.Headers;
 
 namespace TransactionsClient.Services.HttpClientFactory
 {
@@ -20,7 +22,7 @@ namespace TransactionsClient.Services.HttpClientFactory
             _logger = logger;
             _environment = environment;
         }
-        public async Task<HttpClient> CreateClientAsync(string accessToken)
+        public async Task<HttpClient> CreateClientAsync(UserToken token)
         {
             HttpClient client;
             if (_environment.IsDevelopment())
@@ -39,7 +41,7 @@ namespace TransactionsClient.Services.HttpClientFactory
             }
 
             client.BaseAddress = new Uri(_configuration["TransactionsApi:BaseUrl"] ?? "https://localhost:7001");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            client.SetBearerToken(token.AccessToken);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _logger.LogInformation("Successfully created an authenticated HttpClient");
 
