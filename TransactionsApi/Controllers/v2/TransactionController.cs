@@ -9,7 +9,7 @@ namespace TransactionsApi.Controllers.v2
     [Authorize("ApiScope")]
     [ApiController]
     [ApiVersion("2.0")]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/transactions")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
@@ -20,7 +20,7 @@ namespace TransactionsApi.Controllers.v2
             _logger = logger;
         }
 
-        [HttpGet("account/{accountId}")]
+        [HttpGet("accounts/{accountId}")]
         public ActionResult<IReadOnlyDictionary<TransactionCurrency, decimal>> GetAccountTotal(string accountId)
         {
             if (string.IsNullOrWhiteSpace(accountId))
@@ -29,10 +29,7 @@ namespace TransactionsApi.Controllers.v2
                 return BadRequest("AccountId cannot be missing.");
             }
 
-            var totals = Enum.GetValues<TransactionCurrency>()
-                .ToDictionary(
-                    currency => currency,
-                    currency => _transactionService.GetAccountTotal(accountId, currency));
+            var totals = _transactionService.GetAccountTotal(accountId);
 
             return Ok(totals);
         }

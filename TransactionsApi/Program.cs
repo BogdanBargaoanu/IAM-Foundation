@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using TransactionsApi.Services;
 using TransactionsApi.Swagger;
+using TransactionsLibrary.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,25 +17,14 @@ builder.Services.AddAuthentication()
     {
         options.Authority = builder.Configuration["Authentication:Authority"] ?? "https://localhost:5001";
         options.TokenValidationParameters.ValidateAudience = false;
-
-        if (builder.Environment.IsDevelopment())
-        {
-            options.RequireHttpsMetadata = false;
-
-            options.BackchannelHttpHandler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
-        }
     });
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("ApiScope", policy =>
+    options.AddPolicy(Policies.ApiScope, policy =>
     {
         policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "transactions_api");
+        policy.RequireClaim("scope", Scopes.TransactionsApi);
     });
 });
 
