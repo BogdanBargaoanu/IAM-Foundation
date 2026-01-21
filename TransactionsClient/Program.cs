@@ -14,7 +14,7 @@ builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
 
-builder.Services.AddScoped<ITransactionsApiClient, TransactionsApiClient>();
+builder.Services.AddScoped<ITransactionsApiClient, TransactionsClient.Services.ApiClient.TransactionsApiClient>();
 
 builder.Services.AddSingleton<CurlCommandBuilder>();
 
