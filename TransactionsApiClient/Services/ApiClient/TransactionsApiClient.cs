@@ -20,17 +20,30 @@ namespace TransactionsApiClient.Services.ApiClient
             return response.IsSuccessStatusCode;
         }
 
-        public Task<decimal> GetBalanceForCurrencyAsync(
+        public async Task<decimal> GetBalanceForCurrencyAsync(
             TransactionCurrency currency,
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null)
         {
-            throw new NotImplementedException();
+            var queryParams = $"currency={currency}";
+            if (!string.IsNullOrEmpty(searchValue)) queryParams += $"?searchBy={searchBy}?searchValue={searchValue}";
+
+            using var response = await _httpClient.GetAsync($"/api/v1/transactions/amounts/{queryParams}");
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var total = JsonSerializer.Deserialize<decimal>(content);
+            return total;
         }
 
-        public Task<decimal> GetAccountTotalAsync(string accountId, TransactionCurrency currency)
+        public async Task<IReadOnlyDictionary<string, decimal>> GetAccountTotalAsync(string accountId)
         {
-            throw new NotImplementedException();
+            using var response = await _httpClient.GetAsync($"/api/v1/transactions/accounts/{accountId}");
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var totals = JsonSerializer.Deserialize<Dictionary<string, decimal>>(content);
+            return totals;
         }
 
         public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
@@ -41,7 +54,16 @@ namespace TransactionsApiClient.Services.ApiClient
                 TransactionType? type = null,
                 TransactionStatus? status = null)
         {
-            using var response = await _httpClient.GetAsync("/api/v1/transactions");
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(accountId)) queryParams.Add($"accountId={accountId}");
+            if (!string.IsNullOrEmpty(merchantName)) queryParams.Add($"merchantName={merchantName}");
+            if (!string.IsNullOrEmpty(reference)) queryParams.Add($"reference={reference}");
+            if (currency.HasValue) queryParams.Add($"currency={(int)currency}");
+            if (type.HasValue) queryParams.Add($"type={(int)type}");
+            if (status.HasValue) queryParams.Add($"status={(int)status}");
+
+            var query = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
+            using var response = await _httpClient.GetAsync($"/api/v1/transactions{query}");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();

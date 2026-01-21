@@ -12,7 +12,7 @@ namespace TransactionsApiClient.Services.ApiClient
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null);
 
-        Task<decimal> GetAccountTotalAsync(string accountId, TransactionCurrency currency);
+        Task<IReadOnlyDictionary<string, decimal>> GetAccountTotalAsync(string accountId);
 
         Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
             string? accountId = null,
