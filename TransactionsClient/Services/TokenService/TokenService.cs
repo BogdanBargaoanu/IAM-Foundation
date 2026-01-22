@@ -1,8 +1,9 @@
 ﻿using Duende.IdentityModel.Client;
+using TransactionsApiClient.Services.Auth.Providers;
 
 namespace TransactionsClient.Services.TokenService
 {
-    public class TokenService : ITokenService
+    public class TokenService : IAccessTokenProvider
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
@@ -20,7 +21,7 @@ namespace TransactionsClient.Services.TokenService
             _configuration = configuration;
             _logger = logger;
         }
-        public async Task<string> GetAccessTokenAsync()
+        public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken)
         {
             // Return cached token if still valid
             if (!string.IsNullOrEmpty(_cachedToken) && DateTime.UtcNow < _tokenExpiration)
@@ -30,7 +31,7 @@ namespace TransactionsClient.Services.TokenService
 
             var client = _httpClientFactory.CreateClient();
 
-            var disco = await client.GetDiscoveryDocumentAsync(_configuration["IdentityServer:Authority"]);
+            var disco = await client.GetDiscoveryDocumentAsync(_configuration["IdentityServer:Authority"], cancellationToken);
             if (disco.IsError)
             {
                 _logger.LogError("Error retrieving discovery document: {Error}", disco.Error);
@@ -43,7 +44,7 @@ namespace TransactionsClient.Services.TokenService
                 ClientId = _configuration["IdentityServer:ClientId"],
                 ClientSecret = _configuration["IdentityServer:ClientSecret"],
                 Scope = _configuration["IdentityServer:Scope"]
-            });
+            }, cancellationToken);
 
             if (tokenResponse.IsError)
             {
@@ -52,11 +53,12 @@ namespace TransactionsClient.Services.TokenService
             }
 
             _cachedToken = tokenResponse.AccessToken;
+
             // Refresh the token 30 seconds before it expires
             _tokenExpiration = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn - 30);
             _logger.LogInformation("Successfully retrieved an access token from the IdentityServer: {Token}", _cachedToken);
 
-            return _cachedToken;
+            return _cachedToken ?? string.Empty;
         }
     }
 }

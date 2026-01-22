@@ -14,7 +14,12 @@ namespace TransactionsApiClient.Services.Auth.Providers
 
         public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default)
         {
-            var token = await _httpContextAccessor.HttpContext?.GetUserAccessTokenAsync();
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext is null)
+            {
+                throw new InvalidOperationException("HttpContext is not available. This provider can only be used within a HTTP request context");
+            }
+            var token = await httpContext.GetUserAccessTokenAsync(null, cancellationToken);
             return Convert.ToString(token?.Token?.AccessToken) ?? string.Empty;
         }
     }

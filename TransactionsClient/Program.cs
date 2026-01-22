@@ -1,5 +1,5 @@
-using TransactionsClient.Services.ApiClient;
-using TransactionsClient.Services.HttpClientFactory;
+using TransactionsApiClient.Extensions;
+using TransactionsApiClient.Services.Auth.Providers;
 using TransactionsClient.Services.TokenService;
 using TransactionsClient.Services.Utils;
 
@@ -10,11 +10,9 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
 
-builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<IAccessTokenProvider, TokenService>();
 
-builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
-
-builder.Services.AddScoped<ITransactionsApiClient, TransactionsClient.Services.ApiClient.TransactionsApiClient>();
+builder.Services.AddTransactionsApiClient(builder.Configuration, builder.Environment);
 
 builder.Services.AddSingleton<CurlCommandBuilder>();
 

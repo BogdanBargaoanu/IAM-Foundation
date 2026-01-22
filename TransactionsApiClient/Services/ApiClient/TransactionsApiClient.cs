@@ -15,12 +15,11 @@ namespace TransactionsApiClient.Services.ApiClient
 
         public async Task<bool> CheckHealthyAsync()
         {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
-            using var response = await _httpClient.GetAsync("/api/health", cts.Token);
+            using var response = await _httpClient.GetAsync("/api/health");
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<decimal> GetBalanceForCurrencyAsync(
+        public async Task<decimal> GetAmountsForCurrencyAsync(
             TransactionCurrency currency,
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null)
@@ -38,7 +37,7 @@ namespace TransactionsApiClient.Services.ApiClient
 
         public async Task<IReadOnlyDictionary<string, decimal>> GetAccountTotalAsync(string accountId)
         {
-            using var response = await _httpClient.GetAsync($"/api/v1/transactions/accounts/{accountId}");
+            using var response = await _httpClient.GetAsync($"/api/v2/transactions/accounts/{accountId}");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();

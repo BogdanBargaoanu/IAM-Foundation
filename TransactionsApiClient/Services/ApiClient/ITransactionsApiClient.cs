@@ -7,7 +7,7 @@ namespace TransactionsApiClient.Services.ApiClient
     {
         Task<bool> CheckHealthyAsync();
 
-        Task<decimal> GetBalanceForCurrencyAsync(
+        Task<decimal> GetAmountsForCurrencyAsync(
             TransactionCurrency currency,
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null);
