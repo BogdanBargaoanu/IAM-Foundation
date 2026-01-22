@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using System.Text.Json;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
@@ -24,10 +25,20 @@ namespace TransactionsApiClient.Services.ApiClient
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null)
         {
-            var queryParams = $"currency={currency}";
-            if (!string.IsNullOrEmpty(searchValue)) queryParams += $"?searchBy={searchBy}?searchValue={searchValue}";
+            var query = new Dictionary<string, string?>
+            {
+                ["currency"] = ((int)currency).ToString()
+            };
 
-            using var response = await _httpClient.GetAsync($"/api/v1/transactions/amounts/{queryParams}");
+            if (!string.IsNullOrWhiteSpace(searchValue))
+            {
+                query["searchBy"] = ((int)searchBy).ToString();
+                query["searchValue"] = searchValue;
+            }
+
+            var url = QueryHelpers.AddQueryString("/api/v1/transactions/amounts", query);
+
+            using var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -53,16 +64,18 @@ namespace TransactionsApiClient.Services.ApiClient
                 TransactionType? type = null,
                 TransactionStatus? status = null)
         {
-            var queryParams = new List<string>();
-            if (!string.IsNullOrEmpty(accountId)) queryParams.Add($"accountId={accountId}");
-            if (!string.IsNullOrEmpty(merchantName)) queryParams.Add($"merchantName={merchantName}");
-            if (!string.IsNullOrEmpty(reference)) queryParams.Add($"reference={reference}");
-            if (currency.HasValue) queryParams.Add($"currency={(int)currency}");
-            if (type.HasValue) queryParams.Add($"type={(int)type}");
-            if (status.HasValue) queryParams.Add($"status={(int)status}");
+            var query = new Dictionary<string, string?>();
 
-            var query = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
-            using var response = await _httpClient.GetAsync($"/api/v1/transactions{query}");
+            if (!string.IsNullOrWhiteSpace(accountId)) query["accountId"] = accountId;
+            if (!string.IsNullOrWhiteSpace(merchantName)) query["merchantName"] = merchantName;
+            if (!string.IsNullOrWhiteSpace(reference)) query["reference"] = reference;
+            if (currency.HasValue) query["currency"] = ((int)currency.Value).ToString();
+            if (type.HasValue) query["type"] = ((int)type.Value).ToString();
+            if (status.HasValue) query["status"] = ((int)status.Value).ToString();
+
+            var url = QueryHelpers.AddQueryString("/api/v1/transactions", query);
+
+            using var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();

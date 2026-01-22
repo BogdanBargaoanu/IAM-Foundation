@@ -37,7 +37,7 @@ namespace TransactionsClient.Controllers
                 new()
                 {
                     ["currency"] = ((int)currency).ToString(),
-                    ["searchBy"] = "accountId",
+                    ["searchBy"] = ((int)SearchCriteria.Account).ToString(),
                     ["searchValue"] = accountId
                 });
 
@@ -87,7 +87,7 @@ namespace TransactionsClient.Controllers
                 new()
                 {
                     ["currency"] = ((int)currency).ToString(),
-                    ["searchBy"] = "merchantName",
+                    ["searchBy"] = ((int)SearchCriteria.Merchant).ToString(),
                     ["searchValue"] = merchantName
                 });
 
@@ -140,7 +140,7 @@ namespace TransactionsClient.Controllers
                 new()
                 {
                     ["currency"] = ((int)currency).ToString(),
-                    ["searchBy"] = "reference",
+                    ["searchBy"] = ((int)SearchCriteria.Reference).ToString(),
                     ["searchValue"] = reference
                 });
 
