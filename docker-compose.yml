@@ -53,10 +53,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:8081;
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/transactions-api/transactions-api.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       - Api__Version=${API_VERSION:-2.0}
-      - Authentication__Authority=https://localhost:5001
+      - Authentication__Authority=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
     ports:
       - "${TRANSACTIONS_API_HTTPS_PORT:-7001}:8081"
     volumes:
@@ -82,7 +82,7 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       # OIDC settings expected by Program.cs via appsettings binding
-      - Authentication__Schemes__OpenIdConnect__Authority=https://localhost:5001
+      - Authentication__Schemes__OpenIdConnect__Authority=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
       - Authentication__Schemes__OpenIdConnect__ClientId=${OIDC_CLIENT_ID}
       - Authentication__Schemes__OpenIdConnect__ClientSecret=${OIDC_CLIENT_SECRET}
       - Authentication__Schemes__OpenIdConnect__CallbackPath=/signin-oidc

@@ -30,16 +30,6 @@ builder.Services.AddAuthentication(options =>
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
 
-        if (builder.Environment.IsDevelopment())
-        {
-            options.RequireHttpsMetadata = false;
-
-            options.BackchannelHttpHandler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = static (_, _, _, _) => true
-            };
-        }
-
         options.Events = new OpenIdConnectEvents
         {
             OnRedirectToIdentityProvider = context =>

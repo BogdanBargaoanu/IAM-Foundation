@@ -58,3 +58,4 @@ nunit-*.xml
 certs/aspnetapp.pfx
 /certs/ca
 /certs/identity
+/certs/transactions-api
