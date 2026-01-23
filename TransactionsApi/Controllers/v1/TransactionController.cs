@@ -8,7 +8,7 @@ using TransactionsLibrary.Models;
 
 namespace TransactionsApi.Controllers.v1
 {
-    [Authorize("ApiScope")]
+    [Authorize(Policies.ApiScope)]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/transactions")]

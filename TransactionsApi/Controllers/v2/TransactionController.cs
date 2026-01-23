@@ -6,7 +6,7 @@ using TransactionsLibrary.Constants;
 
 namespace TransactionsApi.Controllers.v2
 {
-    [Authorize("ApiScope")]
+    [Authorize(Policies.ApiScope)]
     [ApiController]
     [ApiVersion("2.0")]
     [Route("api/v{version:apiVersion}/transactions")]
