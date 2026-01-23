@@ -1,18 +1,20 @@
 ﻿using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
-namespace TransactionsApi.Services
+namespace TransactionsApiClient.Services.ApiClient
 {
-    public interface ITransactionService
+    public interface ITransactionsApiClient
     {
-        decimal GetBalanceForCurrency(
+        Task<bool> CheckHealthyAsync();
+
+        Task<decimal> GetAmountsForCurrencyAsync(
             TransactionCurrency currency,
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null);
-        decimal GetAccountTotal(string accountId, TransactionCurrency currency);
 
-        IReadOnlyDictionary<TransactionCurrency, decimal> GetAccountTotal(string accountId);
-        IReadOnlyList<Transaction> GetTransactions(
+        Task<IReadOnlyDictionary<string, decimal>> GetAccountTotalAsync(string accountId);
+
+        Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
             string? accountId = null,
             string? merchantName = null,
             string? reference = null,

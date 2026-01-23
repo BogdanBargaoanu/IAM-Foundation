@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using TransactionsClient.Services.ApiClient;
+using TransactionsApiClient.Services.ApiClient;
 using TransactionsClient.Services.Utils;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
@@ -12,6 +12,8 @@ namespace TransactionsClient.Controllers
         private readonly ITransactionsApiClient _apiClient;
         private readonly ILogger<TransactionsController> _logger;
         private readonly CurlCommandBuilder _curlBuilder;
+        private const string AmountsEndpoint = "/api/v1/transactions/amounts";
+        private const string AccountTotalEndpoint = "/api/v2/transactions/accounts";
 
         public TransactionsController(
             ITransactionsApiClient apiClient,
@@ -31,13 +33,18 @@ namespace TransactionsClient.Controllers
         public async Task<IActionResult> GetAccountTotalV1(string accountId, TransactionCurrency currency)
         {
             ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                $"/api/v1/Transaction/account/{accountId}",
-                new() { ["currency"] = ((int)currency).ToString() });
+                AmountsEndpoint,
+                new()
+                {
+                    ["currency"] = ((int)currency).ToString(),
+                    ["searchBy"] = ((int)SearchCriteria.Account).ToString(),
+                    ["searchValue"] = accountId
+                });
 
             try
             {
-                var total = await _apiClient.GetAccountTotalV1Async(accountId, currency);
-                ViewBag.Result = $"Account Total (V1): {total:C} {currency}";
+                var total = await _apiClient.GetAmountsForCurrencyAsync(currency, SearchCriteria.Account, accountId);
+                ViewBag.Result = $"Account Total : {total:C} {currency}";
                 ViewBag.ResultType = "success";
             }
             catch (Exception ex)
@@ -53,11 +60,11 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetAccountTotalV2(string accountId)
         {
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand($"/api/v2/Transaction/account/{accountId}");
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand($"{AccountTotalEndpoint}/{accountId}");
 
             try
             {
-                var totals = await _apiClient.GetAccountTotalV2Async(accountId);
+                var totals = await _apiClient.GetAccountTotalAsync(accountId);
                 ViewBag.Result = string.Join("<br/>", totals.Select(t => $"{t.Key}: {t.Value:C}"));
                 ViewBag.ResultType = "success";
                 ViewBag.IsHtml = true;
@@ -76,12 +83,17 @@ namespace TransactionsClient.Controllers
         public async Task<IActionResult> GetMerchantTotal(string merchantName, TransactionCurrency currency)
         {
             ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                $"/api/v1/Transaction/merchant/{merchantName}",
-                new() { ["currency"] = ((int)currency).ToString() });
+                AmountsEndpoint,
+                new()
+                {
+                    ["currency"] = ((int)currency).ToString(),
+                    ["searchBy"] = ((int)SearchCriteria.Merchant).ToString(),
+                    ["searchValue"] = merchantName
+                });
 
             try
             {
-                var total = await _apiClient.GetMerchantTotalAsync(merchantName, currency);
+                var total = await _apiClient.GetAmountsForCurrencyAsync(currency, SearchCriteria.Merchant, merchantName);
                 ViewBag.Result = $"Merchant Total: {total:C} {currency}";
                 ViewBag.ResultType = "success";
             }
@@ -98,11 +110,15 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetCurrencyTotal(TransactionCurrency currency)
         {
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand($"/api/v1/Transaction/currency/{(int)currency}");
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(AmountsEndpoint,
+                new()
+                {
+                    ["currency"] = ((int)currency).ToString()
+                });
 
             try
             {
-                var total = await _apiClient.GetCurrencyTotalAsync(currency);
+                var total = await _apiClient.GetAmountsForCurrencyAsync(currency);
                 ViewBag.Result = $"Currency Total: {total:C} {currency}";
                 ViewBag.ResultType = "success";
             }
@@ -120,12 +136,17 @@ namespace TransactionsClient.Controllers
         public async Task<IActionResult> GetReferenceTotal(string reference, TransactionCurrency currency)
         {
             ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                $"/api/v1/Transaction/reference/{reference}",
-                new() { ["currency"] = ((int)currency).ToString() });
+                AmountsEndpoint,
+                new()
+                {
+                    ["currency"] = ((int)currency).ToString(),
+                    ["searchBy"] = ((int)SearchCriteria.Reference).ToString(),
+                    ["searchValue"] = reference
+                });
 
             try
             {
-                var total = await _apiClient.GetReferenceTotalAsync(reference, currency);
+                var total = await _apiClient.GetAmountsForCurrencyAsync(currency, SearchCriteria.Reference, reference);
                 ViewBag.Result = $"Reference Total: {total:C} {currency}";
                 ViewBag.ResultType = "success";
             }
@@ -155,7 +176,7 @@ namespace TransactionsClient.Controllers
             if (type.HasValue) queryParams["type"] = ((int)type).ToString();
             if (status.HasValue) queryParams["status"] = ((int)status).ToString();
 
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand("/api/v1/Transaction", queryParams);
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand("/api/v1/transactions", queryParams);
 
             try
             {

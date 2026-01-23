@@ -72,7 +72,7 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-@(transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Successful ? "success" :
-                                                                                                                                               transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Failed ? "danger" : "warning")">
+                                        transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Failed ? "danger" : "warning")">
                                         @transaction.Status
                                     </span>
                                 </td>
@@ -87,7 +87,7 @@
         }
         else
         {
-            <div class="alert alert-info">No transactions found matching your criteria.</div>
+            <div class="alert alert-info">No transactions found.</div>
         }
     </div>
 </div>

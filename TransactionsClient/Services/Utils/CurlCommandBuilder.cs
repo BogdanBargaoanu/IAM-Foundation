@@ -1,11 +1,8 @@
-﻿using TransactionsClient.Services.TokenService;
-
-namespace TransactionsClient.Services.Utils
+﻿namespace TransactionsClient.Services.Utils
 {
     public class CurlCommandBuilder
     {
         private readonly IConfiguration _configuration;
-        private readonly ITokenService _tokenService;
 
         public CurlCommandBuilder(IConfiguration configuration)
         {

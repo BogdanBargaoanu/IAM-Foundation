@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using TransactionsApiClient.Services.ApiClient;
 using TransactionsClient.Models;
-using TransactionsClient.Services.ApiClient;
 
 namespace TransactionsClient.Controllers
 {
@@ -18,7 +18,7 @@ namespace TransactionsClient.Controllers
             bool isHealthy = false;
             try
             {
-                isHealthy = await _apiClient.CheckHealthy();
+                isHealthy = await _apiClient.CheckHealthyAsync();
             }
             catch (Exception)
             {

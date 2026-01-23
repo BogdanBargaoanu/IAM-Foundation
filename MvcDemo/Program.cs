@@ -1,8 +1,7 @@
 using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using MvcDemo.Services.ApiClient;
-using TransactionsClient.Services.HttpClientFactory;
+using TransactionsApiClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,11 +12,9 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddHttpClient();
 
-builder.Services.AddSingleton<IAuthenticatedHttpClientFactory, AuthenticatedHttpClientFactory>();
-
-builder.Services.AddScoped<ITransactionsApiClient, TransactionsApiClient>();
-
 builder.Services.AddOpenIdConnectAccessTokenManagement();
+
+builder.Services.AddTransactionsApiClientUsingHttpContext(builder.Configuration, builder.Environment);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -32,16 +29,6 @@ builder.Services.AddAuthentication(options =>
         options.ResponseType = "code";
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
-
-        if (builder.Environment.IsDevelopment())
-        {
-            options.RequireHttpsMetadata = false;
-
-            options.BackchannelHttpHandler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = static (_, _, _, _) => true
-            };
-        }
 
         options.Events = new OpenIdConnectEvents
         {

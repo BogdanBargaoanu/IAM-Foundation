@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MvcDemo.Services.ApiClient;
+using TransactionsApiClient.Services.ApiClient;
 using TransactionsLibrary.Models;
 
 namespace MvcDemo.Controllers
@@ -24,7 +24,7 @@ namespace MvcDemo.Controllers
             bool isHealthy = false;
             try
             {
-                isHealthy = await _apiClient.CheckHealthy();
+                isHealthy = await _apiClient.CheckHealthyAsync();
             }
             catch (Exception)
             {
@@ -34,6 +34,7 @@ namespace MvcDemo.Controllers
 
             try
             {
+                _logger.LogInformation("Fetching transactions");
                 var transactions = await _apiClient.GetTransactionsAsync();
                 return View(transactions);
             }

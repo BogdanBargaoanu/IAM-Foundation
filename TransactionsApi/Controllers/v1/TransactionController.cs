@@ -1,16 +1,17 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using TransactionsApi.Services;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
 namespace TransactionsApi.Controllers.v1
 {
-    [Authorize("ApiScope")]
+    [Authorize(Policies.ApiScope)]
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/transactions")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
@@ -20,53 +21,24 @@ namespace TransactionsApi.Controllers.v1
             _transactionService = transactionService;
             _logger = logger;
         }
-
-        [HttpGet("account/{accountId}")]
-        public ActionResult<decimal> GetAccountTotal(string accountId, [FromQuery] TransactionCurrency currency)
+        [HttpGet("amounts")]
+        public ActionResult<decimal> GetBalanceForCurrency(
+            [Required][FromQuery] TransactionCurrency currency,
+            [FromQuery] SearchCriteria searchBy = SearchCriteria.None,
+            [FromQuery] string? searchValue = null)
         {
-            if (string.IsNullOrWhiteSpace(accountId))
+            try
             {
-                _logger.LogInformation("Attempted to get account total with missing AccountId.");
-                return BadRequest("AccountId cannot be missing.");
+                var balance = _transactionService.GetBalanceForCurrency(currency, searchBy, searchValue);
+                return Ok(balance);
             }
-
-            var total = _transactionService.GetAccountTotal(accountId, currency);
-            return Ok(total);
-        }
-
-        [HttpGet("merchant/{merchantName}")]
-        public ActionResult<decimal> GetMerchantTotal(string merchantName, [FromQuery] TransactionCurrency currency)
-        {
-            if (string.IsNullOrWhiteSpace(merchantName))
+            catch (ArgumentException ex)
             {
-                _logger.LogInformation("Attempted to get merchant total with missing MerchantName.");
-                return BadRequest("MerchantName cannot be missing.");
+                _logger.LogError(ex, "Invalid search parameter provided.");
+                return BadRequest(ex.Message);
             }
-
-            var total = _transactionService.GetMerchantTotal(merchantName, currency);
-            return Ok(total);
         }
-
-        [HttpGet("currency/{currency}")]
-        public ActionResult<decimal> GetCurrencyTotal(TransactionCurrency currency)
-        {
-            var total = _transactionService.GetCurrencyTotal(currency);
-            return Ok(total);
-        }
-
-        [HttpGet("reference/{reference}")]
-        public ActionResult<decimal> GetReferenceTotal(string reference, [FromQuery] TransactionCurrency currency)
-        {
-            if (string.IsNullOrWhiteSpace(reference))
-            {
-                _logger.LogInformation("Attempted to get reference total with missing Reference.");
-                return BadRequest("Reference cannot be missing.");
-            }
-            var total = _transactionService.GetReferenceTotal(reference, currency);
-            return Ok(total);
-        }
-
-        [HttpGet("transactions")]
+        [HttpGet]
         public ActionResult<IReadOnlyList<Transaction>> GetTransactions(
             [FromQuery] string? accountId = null,
             [FromQuery] string? merchantName = null,
