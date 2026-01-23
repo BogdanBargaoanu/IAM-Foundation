@@ -13,7 +13,7 @@ namespace TransactionsClient.Controllers
         private readonly ILogger<TransactionsController> _logger;
         private readonly CurlCommandBuilder _curlBuilder;
         private const string AmountsEndpoint = "/api/v1/transactions/amounts";
-        private const string AccountTotalEndpoint = "api/v2/transactions/accounts";
+        private const string AccountTotalEndpoint = "/api/v2/transactions/accounts";
 
         public TransactionsController(
             ITransactionsApiClient apiClient,
