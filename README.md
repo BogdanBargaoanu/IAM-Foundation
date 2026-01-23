@@ -9,6 +9,7 @@ It features the following projects:
 - `TransactionsApi` (ASP.NET Web API) - primary role: serves mockup transactions info to authenticated clients.
 - `TransactionsClient` (MVC Web App) - primary role: consumes `TransactionsApi` to display transaction data and request metadata.
 - `TransactionsLibrary` (Class Library) - primary role: centralized models and constants.
+- `TransactionsApiClient` (Class Library) - primary role: exposes an `ITransactionsApiClient` to be consumed by the applications.
 ---
 ## Authorization Code Flow
 The **Authorization Code Flow** will be showcased using the `Identity` and `MvcDemo`.
@@ -54,7 +55,7 @@ dotnet dev-certs https --trust
 
 ```
 
-#### 2. Generate Certified Authority and Identity Certificates
+#### 2. Generate Certified Authority, Identity and TransactionsApi Certificates
 
 In the same PowerShell terminal, navigate to the `certs` directory and run the generation script.
 *Note: The default password is `certpass` if not specified.*
