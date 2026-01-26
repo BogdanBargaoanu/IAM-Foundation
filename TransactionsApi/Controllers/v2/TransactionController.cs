@@ -21,7 +21,7 @@ namespace TransactionsApi.Controllers.v2
         }
 
         [HttpGet("accounts/{accountId}")]
-        public ActionResult<IReadOnlyDictionary<TransactionCurrency, decimal>> GetAccountTotal(string accountId)
+        public async Task<ActionResult<IReadOnlyDictionary<TransactionCurrency, decimal>>> GetAccountTotal(string accountId)
         {
             if (string.IsNullOrWhiteSpace(accountId))
             {
@@ -29,7 +29,7 @@ namespace TransactionsApi.Controllers.v2
                 return BadRequest("AccountId cannot be missing.");
             }
 
-            var totals = _transactionService.GetAccountTotal(accountId);
+            var totals = await _transactionService.GetAccountTotalAsync(accountId);
 
             return Ok(totals);
         }

@@ -39,7 +39,7 @@ builder.Services.AddDbContext<TransactionsDbContext>(options =>
 
 builder.Services.AddHealthChecks();
 
-builder.Services.AddSingleton<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>

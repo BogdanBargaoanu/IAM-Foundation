@@ -22,14 +22,14 @@ namespace TransactionsApi.Controllers.v1
             _logger = logger;
         }
         [HttpGet("amounts")]
-        public ActionResult<decimal> GetBalanceForCurrency(
+        public async Task<ActionResult<decimal>> GetBalanceForCurrency(
             [Required][FromQuery] TransactionCurrency currency,
             [FromQuery] SearchCriteria searchBy = SearchCriteria.None,
             [FromQuery] string? searchValue = null)
         {
             try
             {
-                var balance = _transactionService.GetBalanceForCurrency(currency, searchBy, searchValue);
+                var balance = await _transactionService.GetBalanceForCurrencyAsync(currency, searchBy, searchValue);
                 return Ok(balance);
             }
             catch (ArgumentException ex)
@@ -39,7 +39,7 @@ namespace TransactionsApi.Controllers.v1
             }
         }
         [HttpGet]
-        public ActionResult<IReadOnlyList<Transaction>> GetTransactions(
+        public async Task<ActionResult<IReadOnlyList<Transaction>>> GetTransactions(
             [FromQuery] string? accountId = null,
             [FromQuery] string? merchantName = null,
             [FromQuery] string? reference = null,
@@ -47,7 +47,7 @@ namespace TransactionsApi.Controllers.v1
             [FromQuery] TransactionType? type = null,
             [FromQuery] TransactionStatus? status = null)
         {
-            var transactions = _transactionService.GetTransactions(
+            var transactions = await _transactionService.GetTransactionsAsync(
                 accountId,
                 merchantName,
                 reference,
