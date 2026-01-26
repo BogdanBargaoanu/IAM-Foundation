@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
+using TransactionsApi;
 using TransactionsApi.Data;
 using TransactionsApi.Services;
 using TransactionsApi.Swagger;
@@ -59,6 +60,8 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+SeedData.EnsureSeedData(app);
 
 if (app.Environment.IsDevelopment())
 {
