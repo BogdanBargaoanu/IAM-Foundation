@@ -98,9 +98,9 @@ namespace TransactionsApi.Services
 
             ValidateTransaction(transaction);
 
-            _dbContext.Transactions.Add(transaction);
+            var entry = await _dbContext.Transactions.AddAsync(transaction);
             await _dbContext.SaveChangesAsync();
-            return transaction;
+            return entry.Entity;
         }
 
         public async Task<Transaction> UpdateTransactionAsync(Guid id, Transaction transaction)
