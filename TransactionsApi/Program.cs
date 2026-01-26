@@ -1,5 +1,7 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using Microsoft.EntityFrameworkCore;
+using TransactionsApi.Data;
 using TransactionsApi.Services;
 using TransactionsApi.Swagger;
 using TransactionsLibrary.Constants;
@@ -26,6 +28,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser();
         policy.RequireClaim("scope", Scopes.TransactionsApi);
     });
+});
+
+builder.Services.AddDbContext<TransactionsDbContext>(options =>
+{
+    var cs = builder.Configuration.GetConnectionString("TransactionsDbConnection");
+    options.UseSqlServer(cs);
 });
 
 builder.Services.AddHealthChecks();
