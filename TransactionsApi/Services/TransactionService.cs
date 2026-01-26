@@ -81,5 +81,70 @@ namespace TransactionsApi.Services
                 .OrderByDescending(t => t.Timestamp)
                 .ToListAsync();
         }
+
+        public async Task<Transaction?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.Transactions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
+        {
+            if (transaction.Id == Guid.Empty)
+            {
+                transaction.Id = Guid.NewGuid();
+            }
+
+            ValidateTransaction(transaction);
+
+            _dbContext.Transactions.Add(transaction);
+            await _dbContext.SaveChangesAsync();
+            return transaction;
+        }
+
+        public async Task<Transaction> UpdateTransactionAsync(Guid id, Transaction transaction)
+        {
+            var existing = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            if (existing is null)
+            {
+                throw new KeyNotFoundException($"Transaction '{id}' was not found");
+            }
+
+            ValidateTransaction(transaction);
+
+            existing.AccountId = transaction.AccountId;
+            existing.Timestamp = transaction.Timestamp;
+            existing.Amount = transaction.Amount;
+            existing.Currency = transaction.Currency;
+            existing.Type = transaction.Type;
+            existing.Status = transaction.Status;
+            existing.MerchantName = transaction.MerchantName;
+            existing.Description = transaction.Description;
+            existing.Reference = transaction.Reference;
+
+            await _dbContext.SaveChangesAsync();
+            return existing;
+        }
+
+        public async Task<bool> DeleteTransactionAsync(Guid id)
+        {
+            var existing = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            if (existing is null)
+            {
+                return false;
+            }
+
+            _dbContext.Transactions.Remove(existing);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public void ValidateTransaction(Transaction transaction)
+        {
+            if (string.IsNullOrWhiteSpace(transaction.AccountId)) throw new ArgumentException("AccountId is missing");
+            if (string.IsNullOrWhiteSpace(transaction.MerchantName)) throw new ArgumentException("MerchantName is missing");
+            if (string.IsNullOrWhiteSpace(transaction.Reference)) throw new ArgumentException("Reference is missing");
+        }
     }
 }
