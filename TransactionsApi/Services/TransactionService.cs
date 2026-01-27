@@ -60,6 +60,19 @@ namespace TransactionsApi.Services
             return totals;
         }
 
+        public async Task<int> GetCountAsync(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null)
+        {
+            var query = BuildQuery(accountId, merchantName, reference, currency, type, status);
+
+            return await query.CountAsync();
+        }
+
         public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
             string? accountId = null,
             string? merchantName = null,
@@ -70,14 +83,7 @@ namespace TransactionsApi.Services
             int page = 1,
             int pageSize = 10)
         {
-            IQueryable<Transaction> query = _dbContext.Transactions.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(accountId)) query = query.Where(t => t.AccountId == accountId);
-            if (!string.IsNullOrWhiteSpace(merchantName)) query = query.Where(t => t.MerchantName == merchantName);
-            if (!string.IsNullOrWhiteSpace(reference)) query = query.Where(t => t.Reference == reference);
-            if (currency.HasValue) query = query.Where(t => t.Currency == currency.Value);
-            if (type.HasValue) query = query.Where(t => t.Type == type.Value);
-            if (status.HasValue) query = query.Where(t => t.Status == status.Value);
+            var query = BuildQuery(accountId, merchantName, reference, currency, type, status);
 
             return await query
                 .OrderByDescending(t => t.Timestamp)
@@ -149,6 +155,26 @@ namespace TransactionsApi.Services
             if (string.IsNullOrWhiteSpace(transaction.AccountId)) throw new ArgumentException("AccountId is missing");
             if (string.IsNullOrWhiteSpace(transaction.MerchantName)) throw new ArgumentException("MerchantName is missing");
             if (string.IsNullOrWhiteSpace(transaction.Reference)) throw new ArgumentException("Reference is missing");
+        }
+
+        public IQueryable<Transaction> BuildQuery(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null)
+        {
+            IQueryable<Transaction> query = _dbContext.Transactions.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(accountId)) query = query.Where(t => t.AccountId == accountId);
+            if (!string.IsNullOrWhiteSpace(merchantName)) query = query.Where(t => t.MerchantName == merchantName);
+            if (!string.IsNullOrWhiteSpace(reference)) query = query.Where(t => t.Reference == reference);
+            if (currency.HasValue) query = query.Where(t => t.Currency == currency.Value);
+            if (type.HasValue) query = query.Where(t => t.Type == type.Value);
+            if (status.HasValue) query = query.Where(t => t.Status == status.Value);
+
+            return query;
         }
     }
 }

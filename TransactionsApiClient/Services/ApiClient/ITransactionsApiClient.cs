@@ -14,6 +14,14 @@ namespace TransactionsApiClient.Services.ApiClient
 
         Task<IReadOnlyDictionary<string, decimal>> GetAccountTotalAsync(string accountId);
 
+        Task<int> GetCountAsync(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null);
+
         Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
             string? accountId = null,
             string? merchantName = null,
@@ -23,9 +31,13 @@ namespace TransactionsApiClient.Services.ApiClient
             TransactionStatus? status = null,
             int page = 1,
             int pageSize = 10);
+
         Task<Transaction?> GetByIdAsync(Guid id);
+
         Task<Transaction> CreateTransactionAsync(Transaction transaction);
+
         Task<Transaction> UpdateTransactionAsync(Guid id, Transaction transaction);
+
         Task<bool> DeleteTransactionAsync(Guid id);
     }
 }

@@ -62,6 +62,27 @@ namespace TransactionsApiClient.Services.ApiClient
             return totals;
         }
 
+        public async Task<int> GetCountAsync(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null)
+        {
+            var query = BuildDictionary(accountId, merchantName, reference, currency, type, status);
+
+            var url = QueryHelpers.AddQueryString("/api/v1/transactions/count", query);
+
+            using var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var count = JsonSerializer.Deserialize<int>(content);
+
+            return count;
+        }
+
         public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
                 string? accountId = null,
                 string? merchantName = null,
@@ -72,14 +93,8 @@ namespace TransactionsApiClient.Services.ApiClient
                 int page = 1,
                 int pageSize = 10)
         {
-            var query = new Dictionary<string, string?>();
+            var query = BuildDictionary(accountId, merchantName, reference, currency, type, status);
 
-            if (!string.IsNullOrWhiteSpace(accountId)) query["accountId"] = accountId;
-            if (!string.IsNullOrWhiteSpace(merchantName)) query["merchantName"] = merchantName;
-            if (!string.IsNullOrWhiteSpace(reference)) query["reference"] = reference;
-            if (currency.HasValue) query["currency"] = ((int)currency.Value).ToString();
-            if (type.HasValue) query["type"] = ((int)type.Value).ToString();
-            if (status.HasValue) query["status"] = ((int)status.Value).ToString();
             query["page"] = page.ToString();
             query["pageSize"] = pageSize.ToString();
 
@@ -153,6 +168,26 @@ namespace TransactionsApiClient.Services.ApiClient
 
             response.EnsureSuccessStatusCode();
             return true;
+        }
+
+        private Dictionary<string, string?> BuildDictionary(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null)
+        {
+            var query = new Dictionary<string, string?>();
+
+            if (!string.IsNullOrWhiteSpace(accountId)) query["accountId"] = accountId;
+            if (!string.IsNullOrWhiteSpace(merchantName)) query["merchantName"] = merchantName;
+            if (!string.IsNullOrWhiteSpace(reference)) query["reference"] = reference;
+            if (currency.HasValue) query["currency"] = ((int)currency.Value).ToString();
+            if (type.HasValue) query["type"] = ((int)type.Value).ToString();
+            if (status.HasValue) query["status"] = ((int)status.Value).ToString();
+
+            return query;
         }
     }
 }

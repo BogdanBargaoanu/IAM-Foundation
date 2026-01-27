@@ -40,6 +40,20 @@ namespace TransactionsApi.Controllers.v1
             }
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCount(
+            [FromQuery] string? accountId = null,
+            [FromQuery] string? merchantName = null,
+            [FromQuery] string? reference = null,
+            [FromQuery] TransactionCurrency? currency = null,
+            [FromQuery] TransactionType? type = null,
+            [FromQuery] TransactionStatus? status = null)
+        {
+            var count = await _transactionService.GetCountAsync(accountId, merchantName, reference, currency, type, status);
+
+            return Ok(count);
+        }
+
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Transaction>>> GetTransactions(
             [FromQuery] string? accountId = null,
@@ -51,15 +65,9 @@ namespace TransactionsApi.Controllers.v1
             [Required][FromQuery] int page = 1,
             [Required][FromQuery] int pageSize = 10)
         {
-            var transactions = await _transactionService.GetTransactionsAsync(
-                accountId,
-                merchantName,
-                reference,
-                currency,
-                type,
-                status,
-                page,
-                pageSize);
+            var transactions = await _transactionService.GetTransactionsAsync(accountId, merchantName, reference,
+                currency, type, status, page, pageSize);
+
             return Ok(transactions);
         }
     }

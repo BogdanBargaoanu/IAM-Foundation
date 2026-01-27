@@ -195,6 +195,7 @@ namespace TransactionsClient.Controllers
             return View("Index");
         }
 
+        [HttpGet]
         public async Task<IActionResult> Transactions(
             string? accountId,
             string? merchantName,
@@ -232,8 +233,8 @@ namespace TransactionsClient.Controllers
 
             try
             {
-                var transactions = await _apiClient.GetTransactionsAsync(
-                    accountId, merchantName, reference, currency, type, status);
+                var count = await _apiClient.GetCountAsync(accountId, merchantName, reference, currency, type, status);
+                var transactions = await _apiClient.GetTransactionsAsync(accountId, merchantName, reference, currency, type, status);
 
                 return View(transactions);
             }
