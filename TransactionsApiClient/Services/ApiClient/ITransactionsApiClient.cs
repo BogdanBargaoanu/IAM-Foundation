@@ -21,5 +21,9 @@ namespace TransactionsApiClient.Services.ApiClient
             TransactionCurrency? currency = null,
             TransactionType? type = null,
             TransactionStatus? status = null);
+        Task<Transaction?> GetByIdAsync(Guid id);
+        Task<Transaction> CreateTransactionAsync(Transaction transaction);
+        Task<Transaction> UpdateTransactionAsync(Guid id, Transaction transaction);
+        Task<bool> DeleteTransactionAsync(Guid id);
     }
 }
