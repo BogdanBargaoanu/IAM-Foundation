@@ -21,6 +21,7 @@ namespace TransactionsApi.Controllers.v1
             _transactionService = transactionService;
             _logger = logger;
         }
+
         [HttpGet("amounts")]
         public async Task<ActionResult<decimal>> GetBalanceForCurrency(
             [Required][FromQuery] TransactionCurrency currency,
@@ -38,6 +39,7 @@ namespace TransactionsApi.Controllers.v1
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Transaction>>> GetTransactions(
             [FromQuery] string? accountId = null,
@@ -46,8 +48,8 @@ namespace TransactionsApi.Controllers.v1
             [FromQuery] TransactionCurrency? currency = null,
             [FromQuery] TransactionType? type = null,
             [FromQuery] TransactionStatus? status = null,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
+            [Required][FromQuery] int page = 1,
+            [Required][FromQuery] int pageSize = 10)
         {
             var transactions = await _transactionService.GetTransactionsAsync(
                 accountId,

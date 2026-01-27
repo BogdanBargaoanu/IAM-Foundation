@@ -201,7 +201,9 @@ namespace TransactionsClient.Controllers
             string? reference,
             TransactionCurrency? currency,
             TransactionType? type,
-            TransactionStatus? status)
+            TransactionStatus? status,
+            int page = 1,
+            int pageSize = 10)
         {
             if (TempData.TryGetValue("CurlCommandBefore", out var curl))
             {
@@ -215,6 +217,8 @@ namespace TransactionsClient.Controllers
             if (currency.HasValue) queryParams["currency"] = ((int)currency).ToString();
             if (type.HasValue) queryParams["type"] = ((int)type).ToString();
             if (status.HasValue) queryParams["status"] = ((int)status).ToString();
+            queryParams["page"] = page.ToString();
+            queryParams["pageSize"] = pageSize.ToString();
 
             if (ViewBag.CurlCommand is null)
             {
