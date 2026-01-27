@@ -76,9 +76,9 @@ namespace TransactionsApi.Controllers.v2
                 var updated = await _transactionService.UpdateTransactionAsync(id, transaction);
                 return Ok(updated);
             }
-            catch (ArgumentException ex)
+            catch (KeyNotFoundException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ex.Message);
             }
         }
 

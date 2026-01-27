@@ -194,6 +194,7 @@ namespace TransactionsClient.Controllers
             PopulateDropdowns();
             return View("Index");
         }
+
         public async Task<IActionResult> Transactions(
             string? accountId,
             string? merchantName,
@@ -202,6 +203,11 @@ namespace TransactionsClient.Controllers
             TransactionType? type,
             TransactionStatus? status)
         {
+            if (TempData.TryGetValue("CurlCommandBefore", out var curl))
+            {
+                ViewBag.CurlCommand = curl?.ToString();
+            }
+
             var queryParams = new Dictionary<string, string>();
             if (!string.IsNullOrEmpty(accountId)) queryParams["accountId"] = accountId;
             if (!string.IsNullOrEmpty(merchantName)) queryParams["merchantName"] = merchantName;
@@ -210,27 +216,97 @@ namespace TransactionsClient.Controllers
             if (type.HasValue) queryParams["type"] = ((int)type).ToString();
             if (status.HasValue) queryParams["status"] = ((int)status).ToString();
 
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                HttpRequestType.Get,
-                BaseUrlV1,
-                queryParams);
+            if (ViewBag.CurlCommand is null)
+            {
+                ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                    HttpRequestType.Get,
+                    BaseUrlV1,
+                    queryParams);
+            }
+
+            PopulateDropdowns();
 
             try
             {
                 var transactions = await _apiClient.GetTransactionsAsync(
                     accountId, merchantName, reference, currency, type, status);
 
-                PopulateDropdowns();
                 return View(transactions);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching transactions");
                 ViewBag.Error = $"Error: {ex.Message}";
-                PopulateDropdowns();
                 return View(new List<Transaction>());
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTransaction(Transaction transaction)
+        {
+            TempData["CurlCommandBefore"] = _curlBuilder.BuildCommand(
+                HttpRequestType.Post,
+                BaseUrlV2,
+                jsonBody: transaction);
+
+            PopulateDropdowns();
+
+            try
+            {
+                var created = await _apiClient.CreateTransactionAsync(transaction);
+                return RedirectToAction(nameof(Transactions));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating transaction");
+                ViewBag.Result = $"Error: {ex.Message}";
+                return View("Transactions", await _apiClient.GetTransactionsAsync());
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTransaction(Guid id, Transaction transaction)
+        {
+            TempData["CurlCommandBefore"] = _curlBuilder.BuildCommand(
+                HttpRequestType.Put,
+                $"{BaseUrlV2}/{id}",
+                jsonBody: transaction);
+
+            PopulateDropdowns();
+
+            try
+            {
+                var updated = await _apiClient.UpdateTransactionAsync(id, transaction);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating transaction with ID: {TransactionId}", id);
+                ViewBag.Result = $"Error: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Transactions));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTransaction(Guid id)
+        {
+            TempData["CurlCommandBefore"] = _curlBuilder.BuildCommand(
+                HttpRequestType.Delete,
+                $"{BaseUrlV2}/{id}");
+
+            PopulateDropdowns();
+
+            try
+            {
+                await _apiClient.DeleteTransactionAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting transaction with ID: {TransactionId}", id);
+                ViewBag.Result = $"Error: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Transactions));
+        }
+
         private void PopulateDropdowns()
         {
             ViewBag.Currencies = Enum.GetValues<TransactionCurrency>()
