@@ -254,14 +254,13 @@ namespace TransactionsClient.Controllers
             try
             {
                 var created = await _apiClient.CreateTransactionAsync(transaction);
-                return RedirectToAction(nameof(Transactions));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating transaction");
                 ViewBag.Result = $"Error: {ex.Message}";
-                return View("Transactions", await _apiClient.GetTransactionsAsync());
             }
+            return RedirectToRefererOrDefault();
         }
 
         [HttpPost]
@@ -283,7 +282,7 @@ namespace TransactionsClient.Controllers
                 _logger.LogError(ex, "Error updating transaction with ID: {TransactionId}", id);
                 ViewBag.Result = $"Error: {ex.Message}";
             }
-            return RedirectToAction(nameof(Transactions));
+            return RedirectToRefererOrDefault();
         }
 
         [HttpPost]
@@ -303,6 +302,16 @@ namespace TransactionsClient.Controllers
             {
                 _logger.LogError(ex, "Error deleting transaction with ID: {TransactionId}", id);
                 ViewBag.Result = $"Error: {ex.Message}";
+            }
+            return RedirectToRefererOrDefault();
+        }
+
+        private IActionResult RedirectToRefererOrDefault()
+        {
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrWhiteSpace(referer))
+            {
+                return Redirect(referer);
             }
             return RedirectToAction(nameof(Transactions));
         }

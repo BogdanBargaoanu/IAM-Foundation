@@ -138,7 +138,7 @@
                             <td><small>@transaction.Id.ToString().Substring(0, 8)...</small></td>
                             <td>@transaction.AccountId</td>
                             <td>@transaction.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>@transaction.Amount.ToString("C")</td>
+                            <td>@transaction.Amount</td>
                             <td>@transaction.Currency</td>
                             <td>
                                 <span class="badge bg-@(transaction.Type == TransactionsLibrary.Constants.TransactionType.Credit ? "success" : "primary")">
@@ -185,6 +185,14 @@
                     }
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-end mt-3 me-1 mb-1">
+                    <button type="button"
+                            class="btn btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#createTransactionModal">
+                        Add Transaction
+                    </button>
+                </div>
             </div>
         }
         else
@@ -224,6 +232,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Currency</label>
                             <select class="form-select" name="Currency" required>
+                                <option value="">Select a currency...</option>
                                 @foreach (var c in currencies)
                                 {
                                     <option value="@c.Value">@c.Text</option>
@@ -234,6 +243,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Type</label>
                             <select class="form-select" name="Type" required>
+                                <option value="">Select a type...</option>
                                 @foreach (var t in types)
                                 {
                                     <option value="@t.Value">@t.Text</option>
@@ -244,6 +254,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
                             <select class="form-select" name="Status" required>
+                                <option value="">Select a status...</option>
                                 @foreach (var s in statuses)
                                 {
                                     <option value="@s.Value">@s.Text</option>
