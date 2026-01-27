@@ -12,8 +12,8 @@ namespace TransactionsClient.Controllers
         private readonly ITransactionsApiClient _apiClient;
         private readonly ILogger<TransactionsController> _logger;
         private readonly CurlCommandBuilder _curlBuilder;
-        private const string AmountsEndpoint = "/api/v1/transactions/amounts";
-        private const string AccountTotalEndpoint = "/api/v2/transactions/accounts";
+        private const string BaseUrlV1 = "/api/v1/transactions";
+        private const string BaseUrlV2 = "/api/v2/transactions";
 
         public TransactionsController(
             ITransactionsApiClient apiClient,
@@ -33,7 +33,8 @@ namespace TransactionsClient.Controllers
         public async Task<IActionResult> GetAccountTotalV1(string accountId, TransactionCurrency currency)
         {
             ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                AmountsEndpoint,
+                HttpRequestType.Get,
+                $"{BaseUrlV1}/amounts",
                 new()
                 {
                     ["currency"] = ((int)currency).ToString(),
@@ -60,7 +61,9 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetAccountTotalV2(string accountId)
         {
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand($"{AccountTotalEndpoint}/{accountId}");
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                HttpRequestType.Get,
+                $"{BaseUrlV2}/accounts/{accountId}");
 
             try
             {
@@ -83,7 +86,8 @@ namespace TransactionsClient.Controllers
         public async Task<IActionResult> GetMerchantTotal(string merchantName, TransactionCurrency currency)
         {
             ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                AmountsEndpoint,
+                HttpRequestType.Get,
+                $"{BaseUrlV1}/amounts",
                 new()
                 {
                     ["currency"] = ((int)currency).ToString(),
@@ -110,7 +114,9 @@ namespace TransactionsClient.Controllers
         [HttpPost]
         public async Task<IActionResult> GetCurrencyTotal(TransactionCurrency currency)
         {
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand(AmountsEndpoint,
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                HttpRequestType.Get,
+                $"{BaseUrlV1}/amounts",
                 new()
                 {
                     ["currency"] = ((int)currency).ToString()
@@ -136,7 +142,8 @@ namespace TransactionsClient.Controllers
         public async Task<IActionResult> GetReferenceTotal(string reference, TransactionCurrency currency)
         {
             ViewBag.CurlCommand = _curlBuilder.BuildCommand(
-                AmountsEndpoint,
+                HttpRequestType.Get,
+                $"{BaseUrlV1}/amounts",
                 new()
                 {
                     ["currency"] = ((int)currency).ToString(),
@@ -160,6 +167,33 @@ namespace TransactionsClient.Controllers
             PopulateDropdowns();
             return View("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetTransactionById(Guid transactionId)
+        {
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                HttpRequestType.Get,
+                $"{BaseUrlV2}/{transactionId}");
+
+            try
+            {
+                var transaction = await _apiClient.GetByIdAsync(transactionId);
+                ViewBag.Result = transaction != null
+                    ? @$"Transaction Found: ID={transaction.Id}, AccountID={transaction.AccountId}, Amount={transaction.Amount:C} {transaction.Currency}, Type={transaction.Type},
+                        Status={transaction.Status}, Merchant={transaction.MerchantName}, Reference={transaction.Reference}, Timestamp={transaction.Timestamp}"
+                    : "Transaction not found.";
+                ViewBag.ResultType = "success";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching transaction details");
+                ViewBag.Result = $"Error: {ex.Message}";
+                ViewBag.ResultType = "error";
+            }
+
+            PopulateDropdowns();
+            return View("Index");
+        }
         public async Task<IActionResult> Transactions(
             string? accountId,
             string? merchantName,
@@ -176,7 +210,10 @@ namespace TransactionsClient.Controllers
             if (type.HasValue) queryParams["type"] = ((int)type).ToString();
             if (status.HasValue) queryParams["status"] = ((int)status).ToString();
 
-            ViewBag.CurlCommand = _curlBuilder.BuildCommand("/api/v1/transactions", queryParams);
+            ViewBag.CurlCommand = _curlBuilder.BuildCommand(
+                HttpRequestType.Get,
+                BaseUrlV1,
+                queryParams);
 
             try
             {
