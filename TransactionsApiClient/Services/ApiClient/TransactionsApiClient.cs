@@ -68,7 +68,9 @@ namespace TransactionsApiClient.Services.ApiClient
                 string? reference = null,
                 TransactionCurrency? currency = null,
                 TransactionType? type = null,
-                TransactionStatus? status = null)
+                TransactionStatus? status = null,
+                int page = 1,
+                int pageSize = 10)
         {
             var query = new Dictionary<string, string?>();
 
@@ -78,6 +80,8 @@ namespace TransactionsApiClient.Services.ApiClient
             if (currency.HasValue) query["currency"] = ((int)currency.Value).ToString();
             if (type.HasValue) query["type"] = ((int)type.Value).ToString();
             if (status.HasValue) query["status"] = ((int)status.Value).ToString();
+            query["page"] = page.ToString();
+            query["pageSize"] = pageSize.ToString();
 
             var url = QueryHelpers.AddQueryString("/api/v1/transactions", query);
 
