@@ -18,7 +18,9 @@ namespace TransactionsApi.Services
             string? reference = null,
             TransactionCurrency? currency = null,
             TransactionType? type = null,
-            TransactionStatus? status = null);
+            TransactionStatus? status = null,
+            int page = 1,
+            int pageSize = 10);
 
         Task<Transaction?> GetByIdAsync(Guid id);
         Task<Transaction> CreateTransactionAsync(Transaction transaction);

@@ -66,7 +66,9 @@ namespace TransactionsApi.Services
             string? reference = null,
             TransactionCurrency? currency = null,
             TransactionType? type = null,
-            TransactionStatus? status = null)
+            TransactionStatus? status = null,
+            int page = 1,
+            int pageSize = 10)
         {
             IQueryable<Transaction> query = _dbContext.Transactions.AsNoTracking();
 
@@ -79,6 +81,8 @@ namespace TransactionsApi.Services
 
             return await query
                 .OrderByDescending(t => t.Timestamp)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 

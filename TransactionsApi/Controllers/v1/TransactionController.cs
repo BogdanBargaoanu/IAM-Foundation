@@ -45,7 +45,9 @@ namespace TransactionsApi.Controllers.v1
             [FromQuery] string? reference = null,
             [FromQuery] TransactionCurrency? currency = null,
             [FromQuery] TransactionType? type = null,
-            [FromQuery] TransactionStatus? status = null)
+            [FromQuery] TransactionStatus? status = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             var transactions = await _transactionService.GetTransactionsAsync(
                 accountId,
@@ -53,7 +55,9 @@ namespace TransactionsApi.Controllers.v1
                 reference,
                 currency,
                 type,
-                status);
+                status,
+                page,
+                pageSize);
             return Ok(transactions);
         }
     }
