@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TransactionsApiClient.Services.ApiClient;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
@@ -24,6 +25,8 @@ namespace MvcDemo.Controllers
             int page = Pagination.DefaultPageIndex,
             int pageSize = Pagination.DefaultPageSize)
         {
+            PopulateDropdowns();
+
             bool isHealthy = false;
             try
             {
@@ -52,6 +55,68 @@ namespace MvcDemo.Controllers
                 ViewBag.Error = $"Error: {ex.Message}";
                 return View(new PaginatedList<Transaction>());
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTransaction(Guid id, Transaction transaction)
+        {
+            try
+            {
+                var updated = await _apiClient.UpdateTransactionAsync(id, transaction);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating transaction with ID: {TransactionId}", id);
+                ViewBag.Result = $"Error: {ex.Message}";
+            }
+            return RedirectToRefererOrDefault();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTransaction(Guid id)
+        {
+            try
+            {
+                await _apiClient.DeleteTransactionAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting transaction with ID: {TransactionId}", id);
+                ViewBag.Result = $"Error: {ex.Message}";
+            }
+            return RedirectToRefererOrDefault();
+        }
+
+        private IActionResult RedirectToRefererOrDefault()
+        {
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrWhiteSpace(referer))
+            {
+                return Redirect(referer);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void PopulateDropdowns()
+        {
+            ViewBag.Currencies = Enum.GetValues<TransactionCurrency>()
+                .Select(c => new SelectListItem
+                {
+                    Value = ((int)c).ToString(),
+                    Text = c.ToString()
+                });
+            ViewBag.Types = Enum.GetValues<TransactionType>()
+                .Select(t => new SelectListItem
+                {
+                    Value = ((int)t).ToString(),
+                    Text = t.ToString()
+                });
+            ViewBag.Statuses = Enum.GetValues<TransactionStatus>()
+                .Select(s => new SelectListItem
+                {
+                    Value = ((int)s).ToString(),
+                    Text = s.ToString()
+                });
         }
     }
 }
