@@ -14,11 +14,13 @@ namespace TransactionsApi.Controllers.v2
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly IAuthorizationService _accountOwnerService;
         private readonly ILogger<TransactionController> _logger;
 
-        public TransactionController(ITransactionService transactionService, ILogger<TransactionController> logger)
+        public TransactionController(ITransactionService transactionService, IAuthorizationService accountOwnerService, ILogger<TransactionController> logger)
         {
             _transactionService = transactionService;
+            _accountOwnerService = accountOwnerService;
             _logger = logger;
         }
 
@@ -55,6 +57,9 @@ namespace TransactionsApi.Controllers.v2
         {
             try
             {
+                var authResult = await _accountOwnerService.AuthorizeAsync(User, transaction, Policies.AccountOwner);
+                if (!authResult.Succeeded) return Forbid();
+
                 var created = await _transactionService.CreateTransactionAsync(transaction);
                 return CreatedAtAction(
                     nameof(GetTransactionById),
@@ -73,6 +78,11 @@ namespace TransactionsApi.Controllers.v2
         {
             try
             {
+                var existing = await _transactionService.GetByIdAsync(id);
+
+                var authResult = await _accountOwnerService.AuthorizeAsync(User, existing, Policies.AccountOwner);
+                if (!authResult.Succeeded) return Forbid();
+
                 var updated = await _transactionService.UpdateTransactionAsync(id, transaction);
                 return Ok(updated);
             }
@@ -85,6 +95,11 @@ namespace TransactionsApi.Controllers.v2
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> DeleteTransaction(Guid id)
         {
+            var existing = await _transactionService.GetByIdAsync(id);
+
+            var authResult = await _accountOwnerService.AuthorizeAsync(User, existing, Policies.AccountOwner);
+            if (!authResult.Succeeded) return Forbid();
+
             var deleted = await _transactionService.DeleteTransactionAsync(id);
             if (!deleted)
             {

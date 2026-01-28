@@ -1,9 +1,11 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TransactionsApi;
 using TransactionsApi.Data;
 using TransactionsApi.Services;
+using TransactionsApi.Services.Auth;
 using TransactionsApi.Swagger;
 using TransactionsLibrary.Constants;
 
@@ -29,6 +31,11 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser();
         policy.RequireClaim("scope", Scopes.TransactionsApi);
     });
+
+    options.AddPolicy((Policies.AccountOwner), policy =>
+    {
+        policy.AddRequirements(new AccountOwnerRequirement());
+    });
 });
 
 builder.Services.AddDbContext<TransactionsDbContext>(options =>
@@ -39,7 +46,10 @@ builder.Services.AddDbContext<TransactionsDbContext>(options =>
 
 builder.Services.AddHealthChecks();
 
+builder.Services.AddSingleton<IAuthorizationHandler, TransactionOwnerAuthorizationHandler>();
+
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>
