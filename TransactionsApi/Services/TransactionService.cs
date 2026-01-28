@@ -80,8 +80,8 @@ namespace TransactionsApi.Services
             TransactionCurrency? currency = null,
             TransactionType? type = null,
             TransactionStatus? status = null,
-            int page = 1,
-            int pageSize = 10)
+            int page = Pagination.DefaultPageIndex,
+            int pageSize = Pagination.DefaultPageSize)
         {
             var query = BuildQuery(accountId, merchantName, reference, currency, type, status);
 

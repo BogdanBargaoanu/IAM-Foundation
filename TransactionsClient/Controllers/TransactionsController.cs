@@ -234,15 +234,17 @@ namespace TransactionsClient.Controllers
             try
             {
                 var count = await _apiClient.GetCountAsync(accountId, merchantName, reference, currency, type, status);
-                var transactions = await _apiClient.GetTransactionsAsync(accountId, merchantName, reference, currency, type, status);
+                var transactions = await _apiClient.GetTransactionsAsync(accountId, merchantName, reference, currency, type, status, page, pageSize);
 
-                return View(transactions);
+                var paginatedResult = new PaginatedList<Transaction>(transactions.ToList(), count, page, pageSize);
+
+                return View(paginatedResult);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching transactions");
                 ViewBag.Error = $"Error: {ex.Message}";
-                return View(new List<Transaction>());
+                return View(new PaginatedList<Transaction>());
             }
         }
 

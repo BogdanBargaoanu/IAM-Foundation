@@ -62,8 +62,8 @@ namespace TransactionsApi.Controllers.v1
             [FromQuery] TransactionCurrency? currency = null,
             [FromQuery] TransactionType? type = null,
             [FromQuery] TransactionStatus? status = null,
-            [Required][FromQuery] int page = 1,
-            [Required][FromQuery] int pageSize = 10)
+            [Required][FromQuery] int page = Pagination.DefaultPageIndex,
+            [Required][FromQuery] int pageSize = Pagination.DefaultPageSize)
         {
             var transactions = await _transactionService.GetTransactionsAsync(accountId, merchantName, reference,
                 currency, type, status, page, pageSize);

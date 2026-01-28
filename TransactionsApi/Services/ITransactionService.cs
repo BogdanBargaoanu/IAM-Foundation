@@ -29,8 +29,8 @@ namespace TransactionsApi.Services
             TransactionCurrency? currency = null,
             TransactionType? type = null,
             TransactionStatus? status = null,
-            int page = 1,
-            int pageSize = 10);
+            int page = Pagination.DefaultPageIndex,
+            int pageSize = Pagination.DefaultPageSize);
 
         Task<Transaction?> GetByIdAsync(Guid id);
 
