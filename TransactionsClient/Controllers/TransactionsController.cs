@@ -203,8 +203,8 @@ namespace TransactionsClient.Controllers
             TransactionCurrency? currency,
             TransactionType? type,
             TransactionStatus? status,
-            int page = 1,
-            int pageSize = 10)
+            int page = Pagination.DefaultPageIndex,
+            int pageSize = Pagination.DefaultPageSize)
         {
             if (TempData.TryGetValue("CurlCommandBefore", out var curl))
             {

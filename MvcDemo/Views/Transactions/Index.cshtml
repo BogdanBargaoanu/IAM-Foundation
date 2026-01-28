@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
-@model IEnumerable<TransactionsLibrary.Models.Transaction>
+@using TransactionsLibrary.Constants
+@using TransactionsLibrary.Models
+@model PaginatedList<Transaction>
 
 @{
     ViewData["Title"] = "All Transactions";
@@ -8,11 +10,19 @@
     var types = ViewBag.Types as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
     var statuses = ViewBag.Statuses as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 
-    var transactions = Model ?? Enumerable.Empty<TransactionsLibrary.Models.Transaction>();
+    var transactions = Model.Items;
 
     var selectedCurrency = Context.Request.Query["currency"].ToString();
     var selectedType = Context.Request.Query["type"].ToString();
     var selectedStatus = Context.Request.Query["status"].ToString();
+
+    var prevRouteData = new Dictionary<string, string>
+    {
+        { "pageSize", Context.Request.Query["pageSize"] }
+    };
+
+    var nextRouteData = new Dictionary<string, string>(prevRouteData);
+    var pageRouteData = new Dictionary<string, string>(prevRouteData);
 }
 
 <div class="mb-4">
@@ -35,7 +45,7 @@
 <!-- Transactions Table -->
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0">Results (@transactions.Count() transactions)</h5>
+        <h5 class="mb-0">Results (@Model.TotalCount transactions)</h5>
     </div>
     <div class="card-body">
         @if (transactions.Any())
@@ -43,47 +53,83 @@
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Account</th>
-                            <th>Timestamp</th>
-                            <th>Amount</th>
-                            <th>Currency</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Merchant</th>
-                            <th>Description</th>
-                            <th>Reference</th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Account</th>
+                        <th>Timestamp</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Merchant</th>
+                        <th>Description</th>
+                        <th>Reference</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @foreach (var transaction in transactions)
-                        {
-                            <tr>
-                                <td><small>@transaction.Id.ToString().Substring(0, 8)...</small></td>
-                                <td>@transaction.AccountId</td>
-                                <td>@transaction.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
-                                <td>@transaction.Amount.ToString("C")</td>
-                                <td>@transaction.Currency</td>
-                                <td>
-                                    <span class="badge bg-@(transaction.Type == TransactionsLibrary.Constants.TransactionType.Credit ? "success" : "primary")">
-                                        @transaction.Type
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-@(transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Successful ? "success" :
-                                        transaction.Status == TransactionsLibrary.Constants.TransactionStatus.Failed ? "danger" : "warning")">
-                                        @transaction.Status
-                                    </span>
-                                </td>
-                                <td>@transaction.MerchantName</td>
-                                <td>@transaction.Description</td>
-                                <td>@transaction.Reference</td>
-                            </tr>
-                        }
+                    @foreach (var transaction in transactions)
+                    {
+                        <tr>
+                            <td><small>@transaction.Id.ToString().Substring(0, 8)...</small></td>
+                            <td>@transaction.AccountId</td>
+                            <td>@transaction.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@transaction.Amount.ToString("C")</td>
+                            <td>@transaction.Currency</td>
+                            <td>
+                                <span class="badge bg-@(transaction.Type == TransactionType.Credit ? "success" : "primary")">
+                                    @transaction.Type
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-@(transaction.Status == TransactionStatus.Successful ? "success" :
+                                                      transaction.Status == TransactionStatus.Failed ? "danger" : "warning")">
+                                    @transaction.Status
+                                </span>
+                            </td>
+                            <td>@transaction.MerchantName</td>
+                            <td>@transaction.Description</td>
+                            <td>@transaction.Reference</td>
+                        </tr>
+                    }
                     </tbody>
                 </table>
             </div>
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        @{ prevRouteData["page"] = (Model.PageIndex - 1).ToString(); }
+                        <a class="page-link" asp-all-route-data="prevRouteData" asp-action="Index">
+                            Previous
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        pageRouteData["page"] = i.ToString();
+                        
+                        if (i <= 5 || i == Model.TotalPages)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" asp-all-route-data="pageRouteData" asp-action="Index">@i</a>
+                            </li>
+                        }
+                        else if (i == 6)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        @{ nextRouteData["page"] = (Model.PageIndex + 1).ToString(); }
+                        <a class="page-link" asp-all-route-data="nextRouteData" asp-action="Index">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         }
         else
         {

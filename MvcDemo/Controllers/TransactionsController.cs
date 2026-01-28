@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TransactionsApiClient.Services.ApiClient;
+using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
 namespace MvcDemo.Controllers
@@ -19,7 +20,9 @@ namespace MvcDemo.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            int page = Pagination.DefaultPageIndex,
+            int pageSize = Pagination.DefaultPageSize)
         {
             bool isHealthy = false;
             try
@@ -35,14 +38,19 @@ namespace MvcDemo.Controllers
             try
             {
                 _logger.LogInformation("Fetching transactions");
-                var transactions = await _apiClient.GetTransactionsAsync();
-                return View(transactions);
+
+                var count = await _apiClient.GetCountAsync();
+                var transactions = await _apiClient.GetTransactionsAsync(page: page, pageSize: pageSize);
+
+                var paginatedResult = new PaginatedList<Transaction>(transactions.ToList(), count, page, pageSize);
+
+                return View(paginatedResult);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching transactions");
                 ViewBag.Error = $"Error: {ex.Message}";
-                return View(new List<Transaction>());
+                return View(new PaginatedList<Transaction>());
             }
         }
     }
