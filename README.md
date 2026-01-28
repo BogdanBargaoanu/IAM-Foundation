@@ -6,7 +6,7 @@ It features the following projects:
 - `Identity` (Duende Identity Server)
 - `MvcDemo` (MVC Web App) - primary role: display user information based on issued `access_token`.
 > The `MvcDemo` is authorized to the `TransactionsApi` and can consume it.
-- `TransactionsApi` (ASP.NET Web API) - primary role: serves mockup transactions info to authenticated clients.
+- `TransactionsApi` (ASP.NET Web API) - primary role: serves transactions info to authenticated clients.
 > Note: `TransactionsApi` enforces a `AccountOwner` policy for every other client consuming it besides the `TransactionsClient`, which limits users to altering transaction data to their authentication scope.
 - `TransactionsClient` (MVC Web App) - primary role: consumes `TransactionsApi` to display transaction data and request metadata.
 - `TransactionsLibrary` (Class Library) - primary role: centralized models and constants.
