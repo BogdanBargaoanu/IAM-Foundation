@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 using TransactionsApiClient.Services.ApiClient;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
@@ -42,6 +43,9 @@ namespace MvcDemo.Controllers
             {
                 _logger.LogInformation("Fetching transactions");
 
+                var subjectId = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+                ViewBag.AccountId = subjectId;
+
                 var count = await _apiClient.GetCountAsync();
                 var transactions = await _apiClient.GetTransactionsAsync(page: page, pageSize: pageSize);
 
@@ -52,9 +56,26 @@ namespace MvcDemo.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching transactions");
-                ViewBag.Error = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
                 return View(new PaginatedList<Transaction>());
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTransaction(Transaction transaction)
+        {
+            PopulateDropdowns();
+
+            try
+            {
+                var created = await _apiClient.CreateTransactionAsync(transaction);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating transaction");
+                TempData["Error"] = $"Error: {ex.Message}";
+            }
+            return RedirectToRefererOrDefault();
         }
 
         [HttpPost]
@@ -67,7 +88,7 @@ namespace MvcDemo.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating transaction with ID: {TransactionId}", id);
-                ViewBag.Result = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
             }
             return RedirectToRefererOrDefault();
         }
@@ -75,6 +96,8 @@ namespace MvcDemo.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteTransaction(Guid id)
         {
+            PopulateDropdowns();
+
             try
             {
                 await _apiClient.DeleteTransactionAsync(id);
@@ -82,7 +105,7 @@ namespace MvcDemo.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting transaction with ID: {TransactionId}", id);
-                ViewBag.Result = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
             }
             return RedirectToRefererOrDefault();
         }
