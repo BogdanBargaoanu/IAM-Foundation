@@ -24,10 +24,10 @@ namespace TransactionsClient.Controllers
             _logger = logger;
             _curlBuilder = curlBuilder;
         }
-        public IActionResult Index()
+        public IActionResult Demo()
         {
             PopulateDropdowns();
-            return View();
+            return View("Demo");
         }
         [HttpPost]
         public async Task<IActionResult> GetAccountTotalV1(string accountId, TransactionCurrency currency)
@@ -56,7 +56,7 @@ namespace TransactionsClient.Controllers
             }
 
             PopulateDropdowns();
-            return View("Index");
+            return View("Demo");
         }
         [HttpPost]
         public async Task<IActionResult> GetAccountTotalV2(string accountId)
@@ -80,7 +80,7 @@ namespace TransactionsClient.Controllers
             }
 
             PopulateDropdowns();
-            return View("Index");
+            return View("Demo");
         }
         [HttpPost]
         public async Task<IActionResult> GetMerchantTotal(string merchantName, TransactionCurrency currency)
@@ -109,7 +109,7 @@ namespace TransactionsClient.Controllers
             }
 
             PopulateDropdowns();
-            return View("Index");
+            return View("Demo");
         }
         [HttpPost]
         public async Task<IActionResult> GetCurrencyTotal(TransactionCurrency currency)
@@ -136,7 +136,7 @@ namespace TransactionsClient.Controllers
             }
 
             PopulateDropdowns();
-            return View("Index");
+            return View("Demo");
         }
         [HttpPost]
         public async Task<IActionResult> GetReferenceTotal(string reference, TransactionCurrency currency)
@@ -165,7 +165,7 @@ namespace TransactionsClient.Controllers
             }
 
             PopulateDropdowns();
-            return View("Index");
+            return View("Demo");
         }
 
         [HttpPost]
@@ -192,11 +192,11 @@ namespace TransactionsClient.Controllers
             }
 
             PopulateDropdowns();
-            return View("Index");
+            return View("Demo");
         }
 
         [HttpGet]
-        public async Task<IActionResult> Transactions(
+        public async Task<IActionResult> Index(
             string? accountId,
             string? merchantName,
             string? reference,
@@ -238,13 +238,13 @@ namespace TransactionsClient.Controllers
 
                 var paginatedResult = new PaginatedList<Transaction>(transactions.ToList(), count, page, pageSize);
 
-                return View(paginatedResult);
+                return View("Index", paginatedResult);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching transactions");
                 ViewBag.Error = $"Error: {ex.Message}";
-                return View(new PaginatedList<Transaction>());
+                return View("Index", new PaginatedList<Transaction>());
             }
         }
 
@@ -320,7 +320,7 @@ namespace TransactionsClient.Controllers
             {
                 return Redirect(referer);
             }
-            return RedirectToAction(nameof(Transactions));
+            return RedirectToAction(nameof(Index));
         }
 
         private void PopulateDropdowns()

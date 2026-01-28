@@ -25,13 +25,13 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transactions" 
-                               && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                               asp-controller="Transactions" asp-action="Index">API Demo</a>
+                               && ViewContext.RouteData.Values["action"]?.ToString() == "Demo" ? "active" : "")"
+                               asp-controller="Transactions" asp-action="Demo">API Demo</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transactions"
-                               && ViewContext.RouteData.Values["action"]?.ToString() == "Transactions" ? "active" : "")"
-                               asp-controller="Transactions" asp-action="Transactions">Transactions</a>
+                               && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Transactions" asp-action="Index">Transactions</a>
                         </li>
                     </ul>
                 </div>
