@@ -7,6 +7,7 @@ It features the following projects:
 - `MvcDemo` (MVC Web App) - primary role: display user information based on issued `access_token`.
 > The `MvcDemo` is authorized to the `TransactionsApi` and can consume it.
 - `TransactionsApi` (ASP.NET Web API) - primary role: serves mockup transactions info to authenticated clients.
+> Note: `TransactionsApi` enforces a `AccountOwner` policy for every other client consuming it besides the `TransactionsClient`, which limits users to altering transaction data to their authentication scope.
 - `TransactionsClient` (MVC Web App) - primary role: consumes `TransactionsApi` to display transaction data and request metadata.
 - `TransactionsLibrary` (Class Library) - primary role: centralized models and constants.
 - `TransactionsApiClient` (Class Library) - primary role: exposes an `ITransactionsApiClient` to be consumed by the applications.
@@ -24,7 +25,7 @@ git clone https://github.com/BogdanBargaoanu/IAM-Foundation.git
 
 #### 2. Configure Database
 
-Open the `appsettings.json` file in the Identity project and configure the connection string to point to your local SQL Server instance.
+Open the `appsettings.json` files in the `Identity` and in the `TransactionsApi` projects and configure the connection string to point to your local SQL Server instance.
 
 #### 3. Seed the Database
 
@@ -95,6 +96,7 @@ Once the containers are running, access the applications at the following URLs:
 * `Identity`: [https://localhost:5001](https://localhost:5001)
 * `MvcDemo`: [https://localhost:7151](https://localhost:7151)
 * `TransactionsApi`: [https://localhost:7001/swagger](https://localhost:7001/swagger)
+
 ---
 ## Extension Grants
 A custom **Kiosk Login** Extension Grant is implemented via `KioskAuthenticationGrantValidator.cs` with the `grant_type=kiosk_auth`.
