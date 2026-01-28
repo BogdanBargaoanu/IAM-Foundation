@@ -57,6 +57,8 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-certpass}
       - Api__Version=${API_VERSION:-2.0}
       - Authentication__Authority=${IDENTITY_PUBLIC_URL:-https://localhost:5001}
+      # Connection string for EF/Core
+      - ConnectionStrings__TransactionsDbConnection=Server=db;Database=TransactionsDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
     ports:
       - "${TRANSACTIONS_API_HTTPS_PORT:-7001}:8081"
     volumes:

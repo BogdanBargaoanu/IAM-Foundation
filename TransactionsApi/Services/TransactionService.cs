@@ -1,4 +1,5 @@
-﻿using TransactionsApi.Mock;
+﻿using Microsoft.EntityFrameworkCore;
+using TransactionsApi.Data;
 using TransactionsLibrary.Constants;
 using TransactionsLibrary.Models;
 
@@ -6,56 +7,60 @@ namespace TransactionsApi.Services
 {
     public sealed class TransactionService : ITransactionService
     {
-        public decimal GetBalanceForCurrency(
+        private readonly TransactionsDbContext _dbContext;
+        public TransactionService(TransactionsDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        public async Task<decimal> GetBalanceForCurrencyAsync(
             TransactionCurrency currency,
             SearchCriteria searchBy = SearchCriteria.None,
             string? searchValue = null)
         {
-            var result = 0m;
-            var relevant = MockData.Transactions.Where(tr => tr.Currency == currency);
+            IQueryable<Transaction> query = _dbContext.Transactions
+                .AsNoTracking()
+                .Where(t => t.Currency == currency);
             if (searchBy != SearchCriteria.None && !string.IsNullOrEmpty(searchValue))
             {
                 switch (searchBy)
                 {
                     case SearchCriteria.Account:
-                        relevant = relevant.Where(tr => tr.AccountId == searchValue);
+                        query = query.Where(tr => tr.AccountId == searchValue);
                         break;
                     case SearchCriteria.Merchant:
-                        relevant = relevant.Where(tr => tr.MerchantName == searchValue);
+                        query = query.Where(tr => tr.MerchantName == searchValue);
                         break;
                     case SearchCriteria.Reference:
-                        relevant = relevant.Where(tr => tr.Reference == searchValue);
+                        query = query.Where(tr => tr.Reference == searchValue);
                         break;
                     default:
                         throw new ArgumentException($"Invalid search parameter: {searchBy}", nameof(searchBy));
                 }
             }
-            if (!relevant.Any()) return result;
 
-            result = relevant.Sum(r => r.Amount);
-            return result;
+            return await query.SumAsync(t => t.Amount);
         }
-        public decimal GetAccountTotal(string accountId, TransactionCurrency currency)
+        public async Task<decimal> GetAccountTotalAsync(string accountId, TransactionCurrency currency)
         {
-            var result = 0m;
-            var relevant = MockData.Transactions.Where(tr => tr.AccountId == accountId && tr.Currency == currency);
-            if (!relevant.Any()) return result;
-
-            result = relevant.Sum(r => r.Amount);
-            return result;
+            return await _dbContext.Transactions
+                .AsNoTracking()
+                .Where(t => t.AccountId == accountId && t.Currency == currency)
+                .SumAsync(t => t.Amount);
         }
 
-        public IReadOnlyDictionary<TransactionCurrency, decimal> GetAccountTotal(string accountId)
+        public async Task<IReadOnlyDictionary<TransactionCurrency, decimal>> GetAccountTotalAsync(string accountId)
         {
-            var totals = Enum.GetValues<TransactionCurrency>()
-                .ToDictionary(
-                    currency => currency,
-                    currency => GetAccountTotal(accountId, currency)
-                );
+            var totals = new Dictionary<TransactionCurrency, decimal>();
+
+            foreach (var currency in Enum.GetValues<TransactionCurrency>())
+            {
+                totals[currency] = await GetAccountTotalAsync(accountId, currency);
+            }
+
             return totals;
         }
 
-        public IReadOnlyList<Transaction> GetTransactions(
+        public async Task<int> GetCountAsync(
             string? accountId = null,
             string? merchantName = null,
             string? reference = null,
@@ -63,39 +68,113 @@ namespace TransactionsApi.Services
             TransactionType? type = null,
             TransactionStatus? status = null)
         {
-            var query = MockData.Transactions.AsEnumerable();
+            var query = BuildQuery(accountId, merchantName, reference, currency, type, status);
 
-            if (!string.IsNullOrEmpty(accountId))
+            return await query.CountAsync();
+        }
+
+        public async Task<IReadOnlyList<Transaction>> GetTransactionsAsync(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null,
+            int page = Pagination.DefaultPageIndex,
+            int pageSize = Pagination.DefaultPageSize)
+        {
+            var query = BuildQuery(accountId, merchantName, reference, currency, type, status);
+
+            return await query
+                .OrderByDescending(t => t.Timestamp)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<Transaction?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.Transactions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
+        {
+            if (transaction.Id == Guid.Empty)
             {
-                query = query.Where(tr => tr.AccountId == accountId);
+                transaction.Id = Guid.NewGuid();
             }
 
-            if (!string.IsNullOrEmpty(merchantName))
+            ValidateTransaction(transaction);
+
+            var entry = await _dbContext.Transactions.AddAsync(transaction);
+            await _dbContext.SaveChangesAsync();
+            return entry.Entity;
+        }
+
+        public async Task<Transaction> UpdateTransactionAsync(Guid id, Transaction transaction)
+        {
+            var existing = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            if (existing is null)
             {
-                query = query.Where(tr => tr.MerchantName == merchantName);
+                throw new KeyNotFoundException($"Transaction '{id}' was not found");
             }
 
-            if (!string.IsNullOrEmpty(reference))
+            ValidateTransaction(transaction);
+
+            existing.AccountId = transaction.AccountId;
+            existing.Timestamp = transaction.Timestamp;
+            existing.Amount = transaction.Amount;
+            existing.Currency = transaction.Currency;
+            existing.Type = transaction.Type;
+            existing.Status = transaction.Status;
+            existing.MerchantName = transaction.MerchantName;
+            existing.Description = transaction.Description;
+            existing.Reference = transaction.Reference;
+
+            await _dbContext.SaveChangesAsync();
+            return existing;
+        }
+
+        public async Task<bool> DeleteTransactionAsync(Guid id)
+        {
+            var existing = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            if (existing is null)
             {
-                query = query.Where(tr => tr.Reference == reference);
+                return false;
             }
 
-            if (currency.HasValue)
-            {
-                query = query.Where(tr => tr.Currency == currency.Value);
-            }
+            _dbContext.Transactions.Remove(existing);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
 
-            if (type.HasValue)
-            {
-                query = query.Where(tr => tr.Type == type.Value);
-            }
+        public void ValidateTransaction(Transaction transaction)
+        {
+            if (string.IsNullOrWhiteSpace(transaction.AccountId)) throw new ArgumentException("AccountId is missing");
+            if (string.IsNullOrWhiteSpace(transaction.MerchantName)) throw new ArgumentException("MerchantName is missing");
+            if (string.IsNullOrWhiteSpace(transaction.Reference)) throw new ArgumentException("Reference is missing");
+        }
 
-            if (status.HasValue)
-            {
-                query = query.Where(tr => tr.Status == status.Value);
-            }
+        public IQueryable<Transaction> BuildQuery(
+            string? accountId = null,
+            string? merchantName = null,
+            string? reference = null,
+            TransactionCurrency? currency = null,
+            TransactionType? type = null,
+            TransactionStatus? status = null)
+        {
+            IQueryable<Transaction> query = _dbContext.Transactions.AsNoTracking();
 
-            return query.ToArray();
+            if (!string.IsNullOrWhiteSpace(accountId)) query = query.Where(t => t.AccountId == accountId);
+            if (!string.IsNullOrWhiteSpace(merchantName)) query = query.Where(t => t.MerchantName == merchantName);
+            if (!string.IsNullOrWhiteSpace(reference)) query = query.Where(t => t.Reference == reference);
+            if (currency.HasValue) query = query.Where(t => t.Currency == currency.Value);
+            if (type.HasValue) query = query.Where(t => t.Type == type.Value);
+            if (status.HasValue) query = query.Where(t => t.Status == status.Value);
+
+            return query;
         }
     }
 }

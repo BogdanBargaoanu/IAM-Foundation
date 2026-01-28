@@ -21,15 +21,16 @@ namespace TransactionsApi.Controllers.v1
             _transactionService = transactionService;
             _logger = logger;
         }
+
         [HttpGet("amounts")]
-        public ActionResult<decimal> GetBalanceForCurrency(
+        public async Task<ActionResult<decimal>> GetBalanceForCurrency(
             [Required][FromQuery] TransactionCurrency currency,
             [FromQuery] SearchCriteria searchBy = SearchCriteria.None,
             [FromQuery] string? searchValue = null)
         {
             try
             {
-                var balance = _transactionService.GetBalanceForCurrency(currency, searchBy, searchValue);
+                var balance = await _transactionService.GetBalanceForCurrencyAsync(currency, searchBy, searchValue);
                 return Ok(balance);
             }
             catch (ArgumentException ex)
@@ -38,8 +39,9 @@ namespace TransactionsApi.Controllers.v1
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet]
-        public ActionResult<IReadOnlyList<Transaction>> GetTransactions(
+
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCount(
             [FromQuery] string? accountId = null,
             [FromQuery] string? merchantName = null,
             [FromQuery] string? reference = null,
@@ -47,13 +49,25 @@ namespace TransactionsApi.Controllers.v1
             [FromQuery] TransactionType? type = null,
             [FromQuery] TransactionStatus? status = null)
         {
-            var transactions = _transactionService.GetTransactions(
-                accountId,
-                merchantName,
-                reference,
-                currency,
-                type,
-                status);
+            var count = await _transactionService.GetCountAsync(accountId, merchantName, reference, currency, type, status);
+
+            return Ok(count);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<Transaction>>> GetTransactions(
+            [FromQuery] string? accountId = null,
+            [FromQuery] string? merchantName = null,
+            [FromQuery] string? reference = null,
+            [FromQuery] TransactionCurrency? currency = null,
+            [FromQuery] TransactionType? type = null,
+            [FromQuery] TransactionStatus? status = null,
+            [Required][FromQuery] int page = Pagination.DefaultPageIndex,
+            [Required][FromQuery] int pageSize = Pagination.DefaultPageSize)
+        {
+            var transactions = await _transactionService.GetTransactionsAsync(accountId, merchantName, reference,
+                currency, type, status, page, pageSize);
+
             return Ok(transactions);
         }
     }
