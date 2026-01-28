@@ -243,7 +243,7 @@ namespace TransactionsClient.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching transactions");
-                ViewBag.Error = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
                 return View("Index", new PaginatedList<Transaction>());
             }
         }
@@ -265,7 +265,7 @@ namespace TransactionsClient.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating transaction");
-                ViewBag.Result = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
             }
             return RedirectToRefererOrDefault();
         }
@@ -287,7 +287,7 @@ namespace TransactionsClient.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating transaction with ID: {TransactionId}", id);
-                ViewBag.Result = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
             }
             return RedirectToRefererOrDefault();
         }
@@ -308,7 +308,7 @@ namespace TransactionsClient.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting transaction with ID: {TransactionId}", id);
-                ViewBag.Result = $"Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
             }
             return RedirectToRefererOrDefault();
         }

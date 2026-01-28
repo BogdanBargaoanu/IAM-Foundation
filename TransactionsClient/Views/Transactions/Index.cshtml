@@ -35,9 +35,9 @@
     <h1 class="display-4">All Transactions</h1>
 </div>
 
-@if (ViewBag.Error != null)
+@if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@ViewBag.Error</div>
+    <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
 @if (ViewBag.CurlCommand != null)
