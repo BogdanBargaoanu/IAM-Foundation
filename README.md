@@ -149,3 +149,13 @@ A postman collection is included in the repository for testing the **Kiosk Login
 Download the [postman collection](https://github.com/BogdanBargaoanu/IAM-Foundation/blob/main/utils/IAM-Foundation.postman_collection.json), import it in the app and modify the `baseUrl` to the `Identity` URL , `kiosk_secret` to the Kiosk `client_secret` and respectively the `transactions_secret` to the Transactions `client_secret` in the collection variables.
 
 ---
+## Test the projects online
+The entire structure of the repo is available on Azure.
+
+You can access the apps at the following URL's:
+> Note: since the hosting is done on a free Azure App Service tier, you might want to wake up all services manually.
+
+- `Identity` - https://iam-identity-server.azurewebsites.net
+- `MvcDemo` - https://iam-mvc-demo.azurewebsites.net
+- `TransactionsApi` - https://iam-transactions-api.azurewebsites.net/api - or check the health with https://iam-transactions-api.azurewebsites.net/api/health.
+- `TransactionsClient` - https://iam-transactions-client.azurewebsites.net
